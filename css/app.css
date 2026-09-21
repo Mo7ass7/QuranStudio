@@ -1,0 +1,325 @@
+/* QuranStudio — أنماط التطبيق الرئيسي (المرحلة 1) */
+
+:root {
+  --gold: #d4af37;
+  --gold-soft: rgba(212, 175, 55, 0.35);
+  --bg: #0b0b0d;
+  --bg-card: #16161a;
+  --bg-elevated: #1d1d22;
+  --text: #f2f2f2;
+  --text-dim: #a8a8ad;
+  --danger: #ff6b6b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Amiri', "Traditional Arabic", serif;
+}
+
+.topbar {
+  padding: 22px 16px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--gold-soft);
+}
+
+.topbar h1 {
+  margin: 0;
+  color: var(--gold);
+  font-size: 1.7rem;
+  letter-spacing: 1px;
+}
+
+.topbar .sub {
+  margin: 6px 0 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* التبويبات */
+.tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.tab-btn {
+  flex: 0 0 auto;
+  background: var(--bg-card);
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  color: var(--gold);
+  border-color: var(--gold-soft);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.tab-panel, .actions-row {
+  background: var(--bg-card);
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.actions-row { display: flex; gap: 10px; background: transparent; border: none; padding: 0; }
+
+.field-label {
+  display: block;
+  color: var(--gold);
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.select {
+  width: 100%;
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.ayah-range {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.ayah-stepper { flex: 1; }
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-elevated);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+
+.stepper-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.stepper-value {
+  font-size: 1.1rem;
+  min-width: 2ch;
+  text-align: center;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin: 10px 0 0;
+}
+
+/* شبكة القرّاء */
+.reciter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.reciter-card {
+  background: var(--bg-elevated);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+}
+
+.reciter-card .r-name { display: block; font-size: 0.92rem; }
+.reciter-card .r-country { display: block; font-size: 0.72rem; color: var(--text-dim); margin-top: 4px; }
+
+.reciter-card.selected {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.reciter-card.selected .r-name { color: var(--gold); }
+
+/* الأزرار */
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-primary {
+  flex: 2;
+  background: linear-gradient(180deg, #e6c65c, var(--gold));
+  color: #1a1400;
+}
+
+.btn-secondary {
+  flex: 1;
+  background: var(--bg-card);
+  color: var(--text-dim);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.btn-export {
+  width: 100%;
+  background: linear-gradient(180deg, #e6c65c, var(--gold));
+  color: #1a1400;
+  padding: 16px;
+  font-size: 1.05rem;
+}
+
+.btn:disabled { opacity: 0.55; cursor: wait; }
+
+.status {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  min-height: 1.2em;
+  text-align: center;
+}
+
+.status.err { color: var(--danger); }
+.status.ok { color: #6bd47a; }
+
+/* إطار المعاينة (9:16) */
+.frame-wrap {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  aspect-ratio: 9 / 16;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: #000;
+}
+
+.frame-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* عناصر المشغّل */
+.player-controls {
+  max-width: 380px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.seek-bar {
+  width: 100%;
+  accent-color: var(--gold);
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.transport-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.transport-btn {
+  background: var(--bg-card);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: var(--text);
+  border-radius: 999px;
+  width: 46px;
+  height: 46px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.transport-btn-main {
+  width: 58px;
+  height: 58px;
+  font-size: 1.3rem;
+  background: linear-gradient(180deg, #e6c65c, var(--gold));
+  color: #1a1400;
+  border: none;
+}
+
+/* التصدير */
+.export-progress-wrap { max-width: 380px; margin: 0 auto; width: 100%; }
+
+.export-progress-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.export-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #e6c65c, var(--gold));
+  transition: width 0.1s linear;
+}
+
+/* بطاقة الخطأ */
+.error-card {
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.error-card h2 { margin: 0 0 6px; color: var(--danger); font-size: 1rem; }
+.error-card p { margin: 0; font-size: 0.85rem; color: var(--text-dim); }
+
+.foot {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  padding: 20px;
+}
+
+.foot a { color: var(--gold); }

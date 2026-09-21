@@ -1,0 +1,34 @@
+/* خط أميري — مستضاف محليًا (وليس من CDN)، رخصة SIL Open Font License 1.1
+   المصدر: حزمة @fontsource/amiri الرسمية (نفس ملفات مشروع Amiri الأصلي) */
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./amiri-arabic-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./amiri-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./amiri-arabic-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./amiri-latin-700-normal.woff2') format('woff2');
+}

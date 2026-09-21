@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>QuranStudio — اختبار المصادر (المرحلة 0)</title>
+<link rel="stylesheet" href="../css/debug.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>QuranStudio</h1>
+    <p class="sub">المرحلة 0: اختبار مصادر النص والصوت قبل بناء الواجهة</p>
+  </header>
+
+  <main class="wrap">
+
+    <!-- اختبار 1: نص الآية من api.alquran.cloud -->
+    <section class="card">
+      <h2>1) نص الآية — api.alquran.cloud</h2>
+      <p class="hint">يجلب آية الفاتحة 1:1 (وهي نص البسملة نفسه من هذه الطبعة) لاستخدامه كمرجع، ثم يجلب آية البقرة 1، ويتحقق هل البسملة مدمجة زيادة في نصها ويحذفها إن وُجدت. الجلب يمر عبر نفس Cloudflare Worker الوسيط.</p>
+      <button id="btnText" class="btn">جلب آية البقرة 1</button>
+      <div id="textStatus" class="status"></div>
+      <div id="textResult" class="result" hidden>
+        <div class="row">
+          <span class="label">النص الخام من الـ API:</span>
+          <p id="rawText" class="ayah-text"></p>
+        </div>
+        <div class="row">
+          <span class="label">هل احتوى على بسملة مدمجة؟</span>
+          <p id="bismillahCheck"></p>
+        </div>
+        <div class="row">
+          <span class="label">النص النهائي بعد التنظيف:</span>
+          <p id="cleanText" class="ayah-text"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- اختبار 2: صوت آية الكرسي من everyayah.com -->
+    <section class="card">
+      <h2>2) صوت آية الكرسي — everyayah.com</h2>
+      <p class="hint">يجلب أسماء مجلدات القرّاء من ملف everyayah.com/data/recitations.js مباشرة (بدون تخمين)، ثم يجلب صوت آية الكرسي (2:255) بصيغة {folder}/{SSS}{AAA}.mp3 ويفكّه بـ decodeAudioData ويشغّله. الجلب يمر عبر Cloudflare Worker وسيط (cloudflare-worker/everyayah-proxy.js) لتفادي خطأ CORS.</p>
+      <button id="btnAudio" class="btn">تحميل وتشغيل صوت آية الكرسي</button>
+      <div id="audioStatus" class="status"></div>
+      <div id="audioResult" class="result" hidden>
+        <div class="row">
+          <span class="label">عدد القرّاء المكتشفين من الملف:</span>
+          <p id="recitersCount"></p>
+        </div>
+        <div class="row">
+          <span class="label">القارئ المُستخدم للاختبار:</span>
+          <p id="reciterUsed"></p>
+        </div>
+        <div class="row">
+          <span class="label">رابط الملف الصوتي:</span>
+          <p id="audioUrl" class="mono"></p>
+        </div>
+        <div class="row">
+          <span class="label">مدة الملف بعد الفك:</span>
+          <p id="audioDuration"></p>
+        </div>
+        <button id="btnReplay" class="btn small">إعادة تشغيل</button>
+      </div>
+    </section>
+
+    <!-- سجل الأخطاء وحل CORS المقترح -->
+    <section class="card error-card" id="errorCard" hidden>
+      <h2>⚠️ تعذّر الجلب</h2>
+      <p id="errorMsg"></p>
+      <p class="hint">
+        إن كان السبب CORS (المتصفح يمنع الطلب من مصدر خارجي)، فالحل المقترح هو
+        إنشاء <strong>Cloudflare Worker</strong> بسيط يعمل كوسيط (proxy):
+        يستقبل الطلب من صفحتنا، يجلب البيانات من api.alquran.cloud أو
+        everyayah.com من جهة السيرفر (حيث لا يوجد قيد CORS)، ثم يعيدها لنا
+        مع رؤوس CORS مفتوحة. أخبرني إن ظهرت هذه الرسالة وسأجهّز الـ Worker.
+      </p>
+    </section>
+
+    <!-- خام ملف recitations.js للتشخيص -->
+    <section class="card debug-card">
+      <h2>تشخيص: محتوى recitations.js الخام</h2>
+      <p class="hint">لعرضه هنا فقط في حال فشل الاكتشاف التلقائي لأسماء المجلدات، حتى يمكن تصحيح طريقة القراءة.</p>
+      <pre id="rawRecitationsDebug" class="debug-pre">لم يُجلب بعد.</pre>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <p>QuranStudio — المرحلة 0 من 4</p>
+  </footer>
+
+  <script src="../js/debug/phase0.js"></script>
+</body>
+</html>

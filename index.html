@@ -3,92 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>QuranStudio — اختبار المصادر (المرحلة 0)</title>
-<link rel="stylesheet" href="css/style.css">
+<title>QuranStudio</title>
+<link rel="stylesheet" href="fonts/amiri/amiri.css">
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
   <header class="topbar">
     <h1>QuranStudio</h1>
-    <p class="sub">المرحلة 0: اختبار مصادر النص والصوت قبل بناء الواجهة</p>
+    <p class="sub">أنشئ فيديو قرآني قصير مباشرة من متصفحك</p>
   </header>
 
   <main class="wrap">
 
-    <!-- اختبار 1: نص الآية من api.alquran.cloud -->
-    <section class="card">
-      <h2>1) نص الآية — api.alquran.cloud</h2>
-      <p class="hint">يجلب آية الفاتحة 1:1 (وهي نص البسملة نفسه من هذه الطبعة) لاستخدامه كمرجع، ثم يجلب آية البقرة 1، ويتحقق هل البسملة مدمجة زيادة في نصها ويحذفها إن وُجدت. الجلب يمر عبر نفس Cloudflare Worker الوسيط.</p>
-      <button id="btnText" class="btn">جلب آية البقرة 1</button>
-      <div id="textStatus" class="status"></div>
-      <div id="textResult" class="result" hidden>
-        <div class="row">
-          <span class="label">النص الخام من الـ API:</span>
-          <p id="rawText" class="ayah-text"></p>
+    <!-- التبويبات -->
+    <nav class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="surah">السورة</button>
+      <button class="tab-btn" data-tab="reciter">القارئ</button>
+      <button class="tab-btn" data-tab="background">الخلفية</button>
+      <button class="tab-btn" data-tab="font">الخط</button>
+      <button class="tab-btn" data-tab="display">العرض</button>
+    </nav>
+
+    <!-- تبويب السورة -->
+    <section class="tab-panel active" data-panel="surah">
+      <label class="field-label" for="surahSelect">السورة</label>
+      <select id="surahSelect" class="select"></select>
+
+      <div class="ayah-range">
+        <div class="ayah-stepper">
+          <span class="field-label">من آية</span>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" id="fromMinus">−</button>
+            <span id="fromValue" class="stepper-value">1</span>
+            <button type="button" class="stepper-btn" id="fromPlus">+</button>
+          </div>
         </div>
-        <div class="row">
-          <span class="label">هل احتوى على بسملة مدمجة؟</span>
-          <p id="bismillahCheck"></p>
-        </div>
-        <div class="row">
-          <span class="label">النص النهائي بعد التنظيف:</span>
-          <p id="cleanText" class="ayah-text"></p>
+        <div class="ayah-stepper">
+          <span class="field-label">إلى آية</span>
+          <div class="stepper">
+            <button type="button" class="stepper-btn" id="toMinus">−</button>
+            <span id="toValue" class="stepper-value">1</span>
+            <button type="button" class="stepper-btn" id="toPlus">+</button>
+          </div>
         </div>
       </div>
+      <p class="hint" id="surahHint"></p>
     </section>
 
-    <!-- اختبار 2: صوت آية الكرسي من everyayah.com -->
-    <section class="card">
-      <h2>2) صوت آية الكرسي — everyayah.com</h2>
-      <p class="hint">يجلب أسماء مجلدات القرّاء من ملف everyayah.com/data/recitations.js مباشرة (بدون تخمين)، ثم يجلب صوت آية الكرسي (2:255) بصيغة {folder}/{SSS}{AAA}.mp3 ويفكّه بـ decodeAudioData ويشغّله. الجلب يمر عبر Cloudflare Worker وسيط (cloudflare-worker/everyayah-proxy.js) لتفادي خطأ CORS.</p>
-      <button id="btnAudio" class="btn">تحميل وتشغيل صوت آية الكرسي</button>
-      <div id="audioStatus" class="status"></div>
-      <div id="audioResult" class="result" hidden>
-        <div class="row">
-          <span class="label">عدد القرّاء المكتشفين من الملف:</span>
-          <p id="recitersCount"></p>
-        </div>
-        <div class="row">
-          <span class="label">القارئ المُستخدم للاختبار:</span>
-          <p id="reciterUsed"></p>
-        </div>
-        <div class="row">
-          <span class="label">رابط الملف الصوتي:</span>
-          <p id="audioUrl" class="mono"></p>
-        </div>
-        <div class="row">
-          <span class="label">مدة الملف بعد الفك:</span>
-          <p id="audioDuration"></p>
-        </div>
-        <button id="btnReplay" class="btn small">إعادة تشغيل</button>
+    <!-- تبويب القارئ -->
+    <section class="tab-panel" data-panel="reciter">
+      <label class="field-label">اختر القارئ</label>
+      <div class="reciter-grid" id="reciterGrid"></div>
+    </section>
+
+    <!-- تبويب الخلفية (المرحلة 1: خلفية سوداء فقط، الباقي في المرحلة 2) -->
+    <section class="tab-panel" data-panel="background">
+      <p class="hint">الخلفية حاليًا سوداء بتدرج تعتيم فقط. اختيار الخلفيات (فيديو/صورة) يُضاف في المرحلة 2.</p>
+    </section>
+
+    <!-- تبويب الخط (المرحلة 1: أميري فقط، الباقي في المرحلة 2) -->
+    <section class="tab-panel" data-panel="font">
+      <p class="hint">الخط الحالي: أميري (افتراضي). بقية الخطوط تُضاف في المرحلة 2.</p>
+    </section>
+
+    <!-- تبويب العرض (المرحلة 1: افتراضي فقط، الباقي في المرحلة 2) -->
+    <section class="tab-panel" data-panel="display">
+      <p class="hint">إعدادات العرض الإضافية (اسم القارئ، شكل العداد) تُضاف في المرحلة 2.</p>
+    </section>
+
+    <!-- أزرار التحكم -->
+    <div class="actions-row">
+      <button id="btnGenerate" class="btn btn-primary">أنشئ المعاينة</button>
+      <button id="btnReset" class="btn btn-secondary">إعادة تعيين</button>
+    </div>
+
+    <div id="generateStatus" class="status"></div>
+
+    <!-- إطار المعاينة -->
+    <div class="frame-wrap" id="frameWrap" hidden>
+      <canvas id="previewCanvas" width="1080" height="1920"></canvas>
+    </div>
+
+    <!-- عناصر المشغّل (خارج الـ Canvas تمامًا) -->
+    <div class="player-controls" id="playerControls" hidden>
+      <input type="range" id="seekBar" class="seek-bar" min="0" max="1000" value="0" step="1">
+      <div class="time-row">
+        <span id="timeCurrent">0:00</span>
+        <span id="timeTotal">0:00</span>
       </div>
-    </section>
+      <div class="transport-row">
+        <button id="btnRestart" class="transport-btn" title="من البداية">⏮</button>
+        <button id="btnBack5" class="transport-btn" title="رجوع 5 ثوانٍ">−5</button>
+        <button id="btnPlayPause" class="transport-btn transport-btn-main" title="تشغيل/إيقاف">▶</button>
+        <button id="btnFwd5" class="transport-btn" title="تقديم 5 ثوانٍ">+5</button>
+      </div>
+    </div>
 
-    <!-- سجل الأخطاء وحل CORS المقترح -->
-    <section class="card error-card" id="errorCard" hidden>
-      <h2>⚠️ تعذّر الجلب</h2>
+    <!-- التصدير -->
+    <button id="btnExport" class="btn btn-export" hidden>تحميل / حفظ في المعرض</button>
+    <div id="exportProgressWrap" class="export-progress-wrap" hidden>
+      <div class="export-progress-track"><div id="exportProgressBar" class="export-progress-bar"></div></div>
+      <p id="exportStatus" class="status"></p>
+    </div>
+
+    <div id="errorCard" class="card error-card" hidden>
+      <h2>⚠️ حدث خطأ</h2>
       <p id="errorMsg"></p>
-      <p class="hint">
-        إن كان السبب CORS (المتصفح يمنع الطلب من مصدر خارجي)، فالحل المقترح هو
-        إنشاء <strong>Cloudflare Worker</strong> بسيط يعمل كوسيط (proxy):
-        يستقبل الطلب من صفحتنا، يجلب البيانات من api.alquran.cloud أو
-        everyayah.com من جهة السيرفر (حيث لا يوجد قيد CORS)، ثم يعيدها لنا
-        مع رؤوس CORS مفتوحة. أخبرني إن ظهرت هذه الرسالة وسأجهّز الـ Worker.
-      </p>
-    </section>
-
-    <!-- خام ملف recitations.js للتشخيص -->
-    <section class="card debug-card">
-      <h2>تشخيص: محتوى recitations.js الخام</h2>
-      <p class="hint">لعرضه هنا فقط في حال فشل الاكتشاف التلقائي لأسماء المجلدات، حتى يمكن تصحيح طريقة القراءة.</p>
-      <pre id="rawRecitationsDebug" class="debug-pre">لم يُجلب بعد.</pre>
-    </section>
+    </div>
 
   </main>
 
   <footer class="foot">
-    <p>QuranStudio — المرحلة 0 من 4</p>
+    <p>QuranStudio — المرحلة 1 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a></p>
   </footer>
 
-  <script src="js/phase0.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/reciters.js"></script>
+  <script src="js/everyayahIndex.js"></script>
+  <script src="js/quranApi.js"></script>
+  <script src="js/audioEngine.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
