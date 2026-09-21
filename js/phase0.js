@@ -5,6 +5,17 @@ const EDITION = 'quran-uthmani';
 const EVERYAYAH_BASE = 'https://everyayah.com/data';
 const RECITATIONS_LIST_URL = `${EVERYAYAH_BASE}/recitations.js`;
 
+// رابط Cloudflare Worker الذي يوسّط طلبات everyayah.com (يمنع خطأ CORS).
+// عدّل هذه القيمة بعد نشر الـ Worker إلى رابطه الفعلي، مثال:
+// 'https://quranstudio-proxy.<اسم-حسابك>.workers.dev'
+const EVERYAYAH_PROXY_BASE = '';
+
+// يمرّر رابط everyayah.com عبر الوسيط عند تفعيله، وإلا يستخدم الرابط المباشر
+function viaProxy(url) {
+  if (!EVERYAYAH_PROXY_BASE) return url;
+  return `${EVERYAYAH_PROXY_BASE}/?url=${encodeURIComponent(url)}`;
+}
+
 // عناصر DOM
 const btnText = document.getElementById('btnText');
 const textStatus = document.getElementById('textStatus');
@@ -96,7 +107,7 @@ btnText.addEventListener('click', async () => {
 // يجلب ملف recitations.js وينفّذه كسكربت عادي، ثم يلتقط أي متغير عام جديد
 // عرّفه الملف (بدل تخمين اسم المتغير أو بنية البيانات).
 async function loadRecitersFromEveryayah() {
-  const res = await fetch(RECITATIONS_LIST_URL);
+  const res = await fetch(viaProxy(RECITATIONS_LIST_URL));
   if (!res.ok) throw new Error(`استجابة غير ناجحة (${res.status}) من ${RECITATIONS_LIST_URL}`);
   const rawJs = await res.text();
 
@@ -159,9 +170,18 @@ function playDecodedBuffer() {
 
 btnAudio.addEventListener('click', async () => {
   btnAudio.disabled = true;
-  setStatus(audioStatus, 'جاري جلب قائمة القرّاء من everyayah.com ...');
   audioResult.hidden = true;
   errorCard.hidden = true;
+
+  if (!EVERYAYAH_PROXY_BASE) {
+    setStatus(
+      audioStatus,
+      'تنبيه: لم يُضبط رابط Cloudflare Worker بعد (EVERYAYAH_PROXY_BASE فارغ) — سيُجرَّب الرابط المباشر وقد يفشل بسبب CORS.',
+      'err'
+    );
+  } else {
+    setStatus(audioStatus, 'جاري جلب قائمة القرّاء عبر الوسيط...');
+  }
 
   try {
     const recitersData = await loadRecitersFromEveryayah();
@@ -183,7 +203,7 @@ btnAudio.addEventListener('click', async () => {
     audioUrlEl.textContent = audioUrl;
 
     setStatus(audioStatus, 'جاري تحميل الملف الصوتي وفكّه...', null);
-    const res = await fetch(audioUrl);
+    const res = await fetch(viaProxy(audioUrl));
     if (!res.ok) throw new Error(`استجابة غير ناجحة (${res.status}) من ${audioUrl}`);
     const arrayBuffer = await res.arrayBuffer();
 

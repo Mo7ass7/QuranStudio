@@ -39,7 +39,7 @@
     <!-- اختبار 2: صوت آية الكرسي من everyayah.com -->
     <section class="card">
       <h2>2) صوت آية الكرسي — everyayah.com</h2>
-      <p class="hint">يجلب أسماء مجلدات القرّاء من ملف everyayah.com/data/recitations.js مباشرة (بدون تخمين)، ثم يجلب صوت آية الكرسي (2:255) بصيغة {folder}/{SSS}{AAA}.mp3 ويفكّه بـ decodeAudioData ويشغّله.</p>
+      <p class="hint">يجلب أسماء مجلدات القرّاء من ملف everyayah.com/data/recitations.js مباشرة (بدون تخمين)، ثم يجلب صوت آية الكرسي (2:255) بصيغة {folder}/{SSS}{AAA}.mp3 ويفكّه بـ decodeAudioData ويشغّله. الجلب يمر عبر Cloudflare Worker وسيط (cloudflare-worker/everyayah-proxy.js) لتفادي خطأ CORS من everyayah.com.</p>
       <button id="btnAudio" class="btn">تحميل وتشغيل صوت آية الكرسي</button>
       <div id="audioStatus" class="status"></div>
       <div id="audioResult" class="result" hidden>
