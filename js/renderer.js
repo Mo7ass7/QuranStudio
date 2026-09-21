@@ -144,7 +144,9 @@ function createRenderer(canvas) {
     const reciterFontSize = w * 0.03;
     const topY = canvas.height * 0.075;
 
-    const surahBoxHeight = drawPillBadge(`سورة ${surahName}`, w / 2, topY, {
+    // surahName يأتي جاهزًا من api.alquran.cloud ويتضمن كلمة "سورة" أصلاً
+    // (مثال: "سورة الإخلاص")، فلا نضيفها هنا مرة أخرى تجنبًا للتكرار
+    const surahBoxHeight = drawPillBadge(surahName, w / 2, topY, {
       textColor: '#d4af37',
       bgColor: 'rgba(15,15,15,0.72)',
       borderColor: 'rgba(212,175,55,0.85)',

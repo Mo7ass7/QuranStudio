@@ -215,7 +215,7 @@ btnGenerate.addEventListener('click', async () => {
     state.frameData = {
       layouts,
       timings,
-      surahName: state.selectedSurah.name.replace(/^سورة\s+/, ''),
+      surahName: state.selectedSurah.name, // الاسم كما يعيده الـ API ("سورة X") دون تعديل
       reciterName: reciter.name,
       fromAyah: state.fromAyah,
       toAyah: state.toAyah,
