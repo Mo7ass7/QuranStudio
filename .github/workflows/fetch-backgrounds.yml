@@ -1,0 +1,40 @@
+name: جلب الخلفيات من Pexels
+
+# تشغيل يدوي فقط من تبويب Actions (زر Run workflow)، لأن جلب الخلفيات
+# عملية لمرة واحدة (أو عند الرغبة بتحديثها)، وليست جزءًا من كل push
+on:
+  workflow_dispatch: {}
+
+jobs:
+  fetch-backgrounds:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: تنزيل الفرع الحالي
+        uses: actions/checkout@v4
+
+      - name: إعداد Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: تثبيت اعتماديات السكربت
+        run: npm install
+
+      - name: تشغيل سكربت جلب الخلفيات
+        env:
+          PEXELS_KEY: ${{ secrets.PEXELS_KEY }}
+        run: node scripts/fetch-backgrounds.js
+
+      - name: حفظ ورفع الخلفيات إلى نفس الفرع
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/bg
+          if git diff --cached --quiet; then
+            echo "لا تغييرات لحفظها."
+          else
+            git commit -m "جلب/تحديث خلفيات QuranStudio من Pexels"
+            git push
+          fi

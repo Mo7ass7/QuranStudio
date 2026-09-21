@@ -1,0 +1,11 @@
+{
+  "name": "quranstudio-scripts",
+  "private": true,
+  "description": "اعتماديات سكربتات البناء فقط (مثل جلب الخلفيات). الموقع نفسه HTML/CSS/JS عادي بدون أي إطار عمل أو أداة تجميع.",
+  "scripts": {
+    "fetch-backgrounds": "node scripts/fetch-backgrounds.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}

@@ -25,3 +25,22 @@ function viaProxy(url) {
   if (!PROXY_BASE) return url;
   return `${PROXY_BASE}/?url=${encodeURIComponent(url)}`;
 }
+
+// الخطوط المتاحة (كلها مستضافة محليًا في fonts/، وليس من CDN)
+var FONT_OPTIONS = [
+  { id: 'amiri', label: 'أميري (افتراضي)', family: 'Amiri' },
+  { id: 'scheherazade', label: 'شهرزاد', family: 'Scheherazade New' },
+  { id: 'lateef', label: 'لطيف', family: 'Lateef' },
+  { id: 'reemKufi', label: 'ريم كوفي', family: 'Reem Kufi' },
+  { id: 'arefRuqaa', label: 'عارف رقعة', family: 'Aref Ruqaa' },
+  { id: 'cairo', label: 'القاهرة', family: 'Cairo' },
+];
+
+// أشكال عداد الآيات المتاحة في تبويب العرض
+var COUNTER_STYLES = [
+  { id: 'pill', label: 'حبّة (افتراضي)' },
+  { id: 'circle', label: 'دائرة كبيرة' },
+  { id: 'simple', label: 'بسيط' },
+  { id: 'bottomBar', label: 'شريط سفلي' },
+  { id: 'hidden', label: 'إخفاء' },
+];

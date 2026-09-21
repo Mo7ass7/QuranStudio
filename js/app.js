@@ -8,7 +8,14 @@ const state = {
   fromAyah: 1,
   toAyah: 1,
   selectedReciterId: null,
-  frameData: null, // { layouts, timings, surahName, reciterName, fromAyah, toAyah }
+  backgroundManifest: [],
+  selectedBackgroundId: 'none', // 'none' | 'upload' | معرّف من الفهرس
+  uploadedBgFile: null,
+  activeBackground: null, // الخلفية المحمَّلة فعليًا (عنصر video/img) للمعاينة الحالية
+  selectedFontId: 'amiri',
+  showReciterName: true,
+  counterStyle: 'pill',
+  frameData: null, // { layouts, timings, surahName, reciterName, fromAyah, toAyah, ... }
   mergedBuffer: null,
   totalDuration: 0,
 };
@@ -20,6 +27,15 @@ const fromValueEl = document.getElementById('fromValue');
 const toValueEl = document.getElementById('toValue');
 const surahHintEl = document.getElementById('surahHint');
 const reciterGridEl = document.getElementById('reciterGrid');
+
+const bgGridEl = document.getElementById('bgGrid');
+const bgFileInput = document.getElementById('bgFileInput');
+const btnUploadBg = document.getElementById('btnUploadBg');
+const bgHintEl = document.getElementById('bgHint');
+
+const fontListEl = document.getElementById('fontList');
+const toggleReciterNameEl = document.getElementById('toggleReciterName');
+const counterStyleListEl = document.getElementById('counterStyleList');
 
 const btnGenerate = document.getElementById('btnGenerate');
 const btnReset = document.getElementById('btnReset');
@@ -154,6 +170,120 @@ reciterGridEl.addEventListener('click', (e) => {
   document.querySelectorAll('.reciter-card').forEach(c => c.classList.toggle('selected', c === card));
 });
 
+// ------- تبويب الخلفية -------
+function selectBackgroundCard(id) {
+  state.selectedBackgroundId = id;
+  document.querySelectorAll('.bg-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
+}
+
+function renderUploadedBgCard() {
+  const existing = bgGridEl.querySelector('.bg-card[data-id="upload"]');
+  if (existing) existing.remove();
+  if (!state.uploadedBgFile) return;
+
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'bg-card';
+  card.dataset.id = 'upload';
+
+  if (state.uploadedBgFile.type.startsWith('video/')) {
+    const video = document.createElement('video');
+    video.src = URL.createObjectURL(state.uploadedBgFile);
+    video.muted = true;
+    video.playsInline = true;
+    card.appendChild(video);
+    const badge = document.createElement('span');
+    badge.className = 'bg-badge';
+    badge.textContent = 'متحرك';
+    card.appendChild(badge);
+  } else {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(state.uploadedBgFile);
+    card.appendChild(img);
+  }
+  const label = document.createElement('span');
+  label.className = 'bg-label';
+  label.textContent = 'ملفك';
+  card.appendChild(label);
+
+  bgGridEl.appendChild(card);
+}
+
+async function initBackgroundGrid() {
+  state.backgroundManifest = await loadBackgroundManifest();
+
+  const noneCard = `
+    <button type="button" class="bg-card bg-none selected" data-id="none">بدون خلفية<br>(أسود)</button>
+  `;
+  const manifestCards = state.backgroundManifest.map(entry => `
+    <button type="button" class="bg-card" data-id="${entry.id}">
+      ${entry.type === 'video'
+        ? `<video src="${BACKGROUND_BASE_PATH}${entry.thumbnail || entry.file}" muted playsinline loop autoplay></video><span class="bg-badge">متحرك</span>`
+        : `<img src="${BACKGROUND_BASE_PATH}${entry.thumbnail || entry.file}" alt="">`}
+    </button>
+  `).join('');
+
+  bgGridEl.innerHTML = noneCard + manifestCards;
+
+  bgHintEl.textContent = state.backgroundManifest.length
+    ? `${state.backgroundManifest.length} خلفية جاهزة، أو ارفع خلفيتك الخاصة.`
+    : 'لم تُجلب الخلفيات الجاهزة بعد (شغّل GitHub Action الخاص بجلبها). يمكنك رفع خلفيتك الخاصة من الجهاز الآن.';
+}
+
+bgGridEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.bg-card');
+  if (!card) return;
+  selectBackgroundCard(card.dataset.id);
+});
+
+btnUploadBg.addEventListener('click', () => bgFileInput.click());
+
+bgFileInput.addEventListener('change', () => {
+  const file = bgFileInput.files && bgFileInput.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+    showError('الملف المختار ليس صورة ولا فيديو.');
+    return;
+  }
+  state.uploadedBgFile = file;
+  renderUploadedBgCard();
+  selectBackgroundCard('upload');
+});
+
+// ------- تبويب الخط -------
+function initFontList() {
+  fontListEl.innerHTML = FONT_OPTIONS.map(f => `
+    <button type="button" class="font-card${f.id === state.selectedFontId ? ' selected' : ''}" data-id="${f.id}" style="font-family:'${f.family}'">
+      ${f.label}
+    </button>
+  `).join('');
+}
+
+fontListEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.font-card');
+  if (!card) return;
+  state.selectedFontId = card.dataset.id;
+  document.querySelectorAll('.font-card').forEach(c => c.classList.toggle('selected', c === card));
+});
+
+// ------- تبويب العرض -------
+function initCounterStyleList() {
+  counterStyleListEl.innerHTML = COUNTER_STYLES.map(c => `
+    <button type="button" class="counter-style-card${c.id === state.counterStyle ? ' selected' : ''}" data-id="${c.id}">${c.label}</button>
+  `).join('');
+}
+
+counterStyleListEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.counter-style-card');
+  if (!card) return;
+  state.counterStyle = card.dataset.id;
+  document.querySelectorAll('.counter-style-card').forEach(c => c.classList.toggle('selected', c === card));
+});
+
+toggleReciterNameEl.addEventListener('change', () => {
+  state.showReciterName = toggleReciterNameEl.checked;
+});
+
 // ------- المشغّل -------
 let userSeeking = false;
 
@@ -179,6 +309,18 @@ btnPlayPause.addEventListener('click', () => {
 btnBack5.addEventListener('click', () => player.seekBy(-5));
 btnFwd5.addEventListener('click', () => player.seekBy(5));
 btnRestart.addEventListener('click', () => player.restart());
+
+// يبني عنصر الخلفية الفعلي (video/img) حسب اختيار المستخدم الحالي
+async function resolveActiveBackground() {
+  if (state.selectedBackgroundId === 'none') return null;
+  if (state.selectedBackgroundId === 'upload') {
+    if (!state.uploadedBgFile) return null;
+    return createBackgroundFromFile(state.uploadedBgFile);
+  }
+  const entry = state.backgroundManifest.find(e => e.id === state.selectedBackgroundId);
+  if (!entry) return null;
+  return createBackgroundFromManifestEntry(entry);
+}
 
 // ------- إنشاء المعاينة -------
 btnGenerate.addEventListener('click', async () => {
@@ -206,12 +348,17 @@ btnGenerate.addEventListener('click', async () => {
       (done, total, ayahNumber) => setStatus(`جاري تحميل صوت الآيات (${done}/${total})... آية ${ayahNumber}`)
     );
 
-    setStatus('جاري تجهيز الرسم...');
-    // ننتظر تحميل خط أميري فعليًا قبل أول رسم لتفادي رسم بخط النظام الافتراضي
-    await document.fonts.load('64px Amiri');
-    await document.fonts.load('700 64px Amiri');
+    setStatus('جاري تجهيز الخلفية...');
+    releaseBackground(state.activeBackground);
+    state.activeBackground = await resolveActiveBackground();
 
-    const layouts = renderer.prepareTimelineLayout(ayahTexts, timings);
+    setStatus('جاري تجهيز الرسم...');
+    const fontOption = FONT_OPTIONS.find(f => f.id === state.selectedFontId) || FONT_OPTIONS[0];
+    // ننتظر تحميل الخط المختار فعليًا قبل أول رسم لتفادي رسم بخط النظام الافتراضي
+    await document.fonts.load(`64px "${fontOption.family}"`);
+    await document.fonts.load(`700 64px "${fontOption.family}"`);
+
+    const layouts = renderer.prepareTimelineLayout(ayahTexts, timings, fontOption.family);
     state.frameData = {
       layouts,
       timings,
@@ -219,6 +366,10 @@ btnGenerate.addEventListener('click', async () => {
       reciterName: reciter.name,
       fromAyah: state.fromAyah,
       toAyah: state.toAyah,
+      fontFamily: fontOption.family,
+      showReciterName: state.showReciterName,
+      counterStyle: state.counterStyle,
+      background: state.activeBackground,
     };
     state.mergedBuffer = buffer;
     state.totalDuration = totalDuration;
@@ -246,6 +397,8 @@ btnGenerate.addEventListener('click', async () => {
 // ------- إعادة تعيين -------
 btnReset.addEventListener('click', () => {
   player.stop();
+  releaseBackground(state.activeBackground);
+  state.activeBackground = null;
   state.frameData = null;
   state.mergedBuffer = null;
   state.totalDuration = 0;
@@ -261,6 +414,22 @@ btnReset.addEventListener('click', () => {
 
   document.querySelectorAll('.reciter-card').forEach(c => c.classList.remove('selected'));
   state.selectedReciterId = null;
+
+  state.selectedBackgroundId = 'none';
+  state.uploadedBgFile = null;
+  bgFileInput.value = '';
+  const uploadCard = bgGridEl.querySelector('.bg-card[data-id="upload"]');
+  if (uploadCard) uploadCard.remove();
+  selectBackgroundCard('none');
+
+  state.selectedFontId = 'amiri';
+  document.querySelectorAll('.font-card').forEach(c => c.classList.toggle('selected', c.dataset.id === 'amiri'));
+
+  state.showReciterName = true;
+  toggleReciterNameEl.checked = true;
+
+  state.counterStyle = 'pill';
+  document.querySelectorAll('.counter-style-card').forEach(c => c.classList.toggle('selected', c.dataset.id === 'pill'));
 
   if (state.surahList.length) setSurahByNumber(state.surahList[0].number);
   surahSelect.value = state.surahList[0] ? String(state.surahList[0].number) : '';
@@ -309,3 +478,6 @@ btnExport.addEventListener('click', async () => {
 // ------- التشغيل الأولي -------
 initReciterGrid();
 initSurahList();
+initBackgroundGrid();
+initFontList();
+initCounterStyleList();

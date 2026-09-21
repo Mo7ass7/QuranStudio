@@ -1,0 +1,39 @@
+/* QuranStudio — كل الخطوط مستضافة محليًا (وليس من CDN)
+   المصدر: حزم @fontsource الرسمية (نفس ملفات مشاريع الخطوط الأصلية)
+   الرخص: SIL Open Font License 1.1 لكل الخطوط (راجع LICENSE في مجلد كل خط) */
+
+/* أميري (الافتراضي) */
+@font-face { font-family: 'Amiri'; font-style: normal; font-weight: 400; font-display: swap; src: url('./amiri/amiri-arabic-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Amiri'; font-style: normal; font-weight: 400; font-display: swap; src: url('./amiri/amiri-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Amiri'; font-style: normal; font-weight: 700; font-display: swap; src: url('./amiri/amiri-arabic-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Amiri'; font-style: normal; font-weight: 700; font-display: swap; src: url('./amiri/amiri-latin-700-normal.woff2') format('woff2'); }
+
+/* شهرزاد (Scheherazade New) */
+@font-face { font-family: 'Scheherazade New'; font-style: normal; font-weight: 400; font-display: swap; src: url('./scheherazade-new/scheherazade-new-arabic-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Scheherazade New'; font-style: normal; font-weight: 400; font-display: swap; src: url('./scheherazade-new/scheherazade-new-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Scheherazade New'; font-style: normal; font-weight: 700; font-display: swap; src: url('./scheherazade-new/scheherazade-new-arabic-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Scheherazade New'; font-style: normal; font-weight: 700; font-display: swap; src: url('./scheherazade-new/scheherazade-new-latin-700-normal.woff2') format('woff2'); }
+
+/* لطيف (Lateef) */
+@font-face { font-family: 'Lateef'; font-style: normal; font-weight: 400; font-display: swap; src: url('./lateef/lateef-arabic-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Lateef'; font-style: normal; font-weight: 400; font-display: swap; src: url('./lateef/lateef-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Lateef'; font-style: normal; font-weight: 700; font-display: swap; src: url('./lateef/lateef-arabic-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Lateef'; font-style: normal; font-weight: 700; font-display: swap; src: url('./lateef/lateef-latin-700-normal.woff2') format('woff2'); }
+
+/* ريم كوفي (Reem Kufi) */
+@font-face { font-family: 'Reem Kufi'; font-style: normal; font-weight: 400; font-display: swap; src: url('./reem-kufi/reem-kufi-arabic-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Reem Kufi'; font-style: normal; font-weight: 400; font-display: swap; src: url('./reem-kufi/reem-kufi-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Reem Kufi'; font-style: normal; font-weight: 700; font-display: swap; src: url('./reem-kufi/reem-kufi-arabic-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Reem Kufi'; font-style: normal; font-weight: 700; font-display: swap; src: url('./reem-kufi/reem-kufi-latin-700-normal.woff2') format('woff2'); }
+
+/* عارف رقعة (Aref Ruqaa) */
+@font-face { font-family: 'Aref Ruqaa'; font-style: normal; font-weight: 400; font-display: swap; src: url('./aref-ruqaa/aref-ruqaa-arabic-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Aref Ruqaa'; font-style: normal; font-weight: 400; font-display: swap; src: url('./aref-ruqaa/aref-ruqaa-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Aref Ruqaa'; font-style: normal; font-weight: 700; font-display: swap; src: url('./aref-ruqaa/aref-ruqaa-arabic-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Aref Ruqaa'; font-style: normal; font-weight: 700; font-display: swap; src: url('./aref-ruqaa/aref-ruqaa-latin-700-normal.woff2') format('woff2'); }
+
+/* القاهرة (Cairo) */
+@font-face { font-family: 'Cairo'; font-style: normal; font-weight: 400; font-display: swap; src: url('./cairo/cairo-arabic-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Cairo'; font-style: normal; font-weight: 400; font-display: swap; src: url('./cairo/cairo-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Cairo'; font-style: normal; font-weight: 700; font-display: swap; src: url('./cairo/cairo-arabic-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Cairo'; font-style: normal; font-weight: 700; font-display: swap; src: url('./cairo/cairo-latin-700-normal.woff2') format('woff2'); }

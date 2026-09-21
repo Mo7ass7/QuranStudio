@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/amiri/amiri.css">
+<link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -56,19 +56,30 @@
       <div class="reciter-grid" id="reciterGrid"></div>
     </section>
 
-    <!-- تبويب الخلفية (المرحلة 1: خلفية سوداء فقط، الباقي في المرحلة 2) -->
+    <!-- تبويب الخلفية -->
     <section class="tab-panel" data-panel="background">
-      <p class="hint">الخلفية حاليًا سوداء بتدرج تعتيم فقط. اختيار الخلفيات (فيديو/صورة) يُضاف في المرحلة 2.</p>
+      <label class="field-label">اختر الخلفية</label>
+      <div class="bg-grid" id="bgGrid"></div>
+      <input type="file" id="bgFileInput" accept="image/*,video/*" hidden>
+      <button type="button" id="btnUploadBg" class="btn btn-secondary bg-upload-btn">رفع من الجهاز (صورة أو فيديو)</button>
+      <p class="hint" id="bgHint"></p>
     </section>
 
-    <!-- تبويب الخط (المرحلة 1: أميري فقط، الباقي في المرحلة 2) -->
+    <!-- تبويب الخط -->
     <section class="tab-panel" data-panel="font">
-      <p class="hint">الخط الحالي: أميري (افتراضي). بقية الخطوط تُضاف في المرحلة 2.</p>
+      <label class="field-label">اختر الخط</label>
+      <div class="font-list" id="fontList"></div>
     </section>
 
-    <!-- تبويب العرض (المرحلة 1: افتراضي فقط، الباقي في المرحلة 2) -->
+    <!-- تبويب العرض -->
     <section class="tab-panel" data-panel="display">
-      <p class="hint">إعدادات العرض الإضافية (اسم القارئ، شكل العداد) تُضاف في المرحلة 2.</p>
+      <label class="toggle-row">
+        <span>إظهار اسم القارئ</span>
+        <input type="checkbox" id="toggleReciterName" checked>
+      </label>
+
+      <label class="field-label" style="margin-top:16px;">شكل عداد الآيات</label>
+      <div class="counter-style-list" id="counterStyleList"></div>
     </section>
 
     <!-- أزرار التحكم -->
@@ -114,7 +125,7 @@
   </main>
 
   <footer class="foot">
-    <p>QuranStudio — المرحلة 1 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a></p>
+    <p>QuranStudio — المرحلة 2 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a></p>
   </footer>
 
   <script src="js/config.js"></script>
@@ -122,6 +133,7 @@
   <script src="js/everyayahIndex.js"></script>
   <script src="js/quranApi.js"></script>
   <script src="js/audioEngine.js"></script>
+  <script src="js/backgroundManager.js"></script>
   <script src="js/renderer.js"></script>
   <script src="js/player.js"></script>
   <script src="js/export.js"></script>
