@@ -17,7 +17,7 @@
     <!-- اختبار 1: نص الآية من api.alquran.cloud -->
     <section class="card">
       <h2>1) نص الآية — api.alquran.cloud</h2>
-      <p class="hint">يجلب آية الفاتحة 1:1 (وهي نص البسملة نفسه من هذه الطبعة) لاستخدامه كمرجع، ثم يجلب آية البقرة 1، ويتحقق هل البسملة مدمجة زيادة في نصها ويحذفها إن وُجدت.</p>
+      <p class="hint">يجلب آية الفاتحة 1:1 (وهي نص البسملة نفسه من هذه الطبعة) لاستخدامه كمرجع، ثم يجلب آية البقرة 1، ويتحقق هل البسملة مدمجة زيادة في نصها ويحذفها إن وُجدت. الجلب يمر عبر نفس Cloudflare Worker الوسيط.</p>
       <button id="btnText" class="btn">جلب آية البقرة 1</button>
       <div id="textStatus" class="status"></div>
       <div id="textResult" class="result" hidden>
@@ -39,7 +39,7 @@
     <!-- اختبار 2: صوت آية الكرسي من everyayah.com -->
     <section class="card">
       <h2>2) صوت آية الكرسي — everyayah.com</h2>
-      <p class="hint">يجلب أسماء مجلدات القرّاء من ملف everyayah.com/data/recitations.js مباشرة (بدون تخمين)، ثم يجلب صوت آية الكرسي (2:255) بصيغة {folder}/{SSS}{AAA}.mp3 ويفكّه بـ decodeAudioData ويشغّله. الجلب يمر عبر Cloudflare Worker وسيط (cloudflare-worker/everyayah-proxy.js) لتفادي خطأ CORS من everyayah.com.</p>
+      <p class="hint">يجلب أسماء مجلدات القرّاء من ملف everyayah.com/data/recitations.js مباشرة (بدون تخمين)، ثم يجلب صوت آية الكرسي (2:255) بصيغة {folder}/{SSS}{AAA}.mp3 ويفكّه بـ decodeAudioData ويشغّله. الجلب يمر عبر Cloudflare Worker وسيط (cloudflare-worker/everyayah-proxy.js) لتفادي خطأ CORS.</p>
       <button id="btnAudio" class="btn">تحميل وتشغيل صوت آية الكرسي</button>
       <div id="audioStatus" class="status"></div>
       <div id="audioResult" class="result" hidden>

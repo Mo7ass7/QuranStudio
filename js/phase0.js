@@ -5,15 +5,14 @@ const EDITION = 'quran-uthmani';
 const EVERYAYAH_BASE = 'https://everyayah.com/data';
 const RECITATIONS_LIST_URL = `${EVERYAYAH_BASE}/recitations.js`;
 
-// رابط Cloudflare Worker الذي يوسّط طلبات everyayah.com (يمنع خطأ CORS).
-// عدّل هذه القيمة بعد نشر الـ Worker إلى رابطه الفعلي، مثال:
-// 'https://quranstudio-proxy.<اسم-حسابك>.workers.dev'
-const EVERYAYAH_PROXY_BASE = '';
+// رابط Cloudflare Worker الذي يوسّط طلبات api.alquran.cloud و everyayah.com
+// (يمنع خطأ CORS)، الملف: cloudflare-worker/everyayah-proxy.js
+const PROXY_BASE = 'https://quranstudio-proxy.3asba0011.workers.dev';
 
-// يمرّر رابط everyayah.com عبر الوسيط عند تفعيله، وإلا يستخدم الرابط المباشر
+// يمرّر أي رابط من النطاقين المسموحين عبر الوسيط، وإلا يستخدم الرابط المباشر
 function viaProxy(url) {
-  if (!EVERYAYAH_PROXY_BASE) return url;
-  return `${EVERYAYAH_PROXY_BASE}/?url=${encodeURIComponent(url)}`;
+  if (!PROXY_BASE) return url;
+  return `${PROXY_BASE}/?url=${encodeURIComponent(url)}`;
 }
 
 // عناصر DOM
@@ -54,7 +53,7 @@ function setStatus(el, text, kind) {
 // يجلب JSON من الـ API مع رسائل خطأ واضحة
 async function fetchAyah(surah, ayah) {
   const url = `${QURAN_TEXT_API}/${surah}:${ayah}/${EDITION}`;
-  const res = await fetch(url);
+  const res = await fetch(viaProxy(url));
   if (!res.ok) throw new Error(`استجابة غير ناجحة (${res.status}) من ${url}`);
   const json = await res.json();
   if (!json || !json.data || typeof json.data.text !== 'string') {
@@ -173,10 +172,10 @@ btnAudio.addEventListener('click', async () => {
   audioResult.hidden = true;
   errorCard.hidden = true;
 
-  if (!EVERYAYAH_PROXY_BASE) {
+  if (!PROXY_BASE) {
     setStatus(
       audioStatus,
-      'تنبيه: لم يُضبط رابط Cloudflare Worker بعد (EVERYAYAH_PROXY_BASE فارغ) — سيُجرَّب الرابط المباشر وقد يفشل بسبب CORS.',
+      'تنبيه: لم يُضبط رابط Cloudflare Worker بعد (PROXY_BASE فارغ) — سيُجرَّب الرابط المباشر وقد يفشل بسبب CORS.',
       'err'
     );
   } else {
