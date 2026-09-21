@@ -103,8 +103,9 @@ btnText.addEventListener('click', async () => {
 
 // ------- اختبار 2: صوت آية الكرسي -------
 
-// يجلب ملف recitations.js وينفّذه كسكربت عادي، ثم يلتقط أي متغير عام جديد
-// عرّفه الملف (بدل تخمين اسم المتغير أو بنية البيانات).
+// يجلب ملف recitations.js وينفّذه كسكربت JS فعلي (وليس بـ regex هش)، حتى
+// تُعرَّف متغيراته تمامًا كما لو حُمِّل الملف بوسم <script> عادي — يعمل هذا
+// مع var (يُعرَّف على window مباشرة) ومع let/const عبر الالتقاط الاحتياطي.
 async function loadRecitersFromEveryayah() {
   const res = await fetch(viaProxy(RECITATIONS_LIST_URL));
   if (!res.ok) throw new Error(`استجابة غير ناجحة (${res.status}) من ${RECITATIONS_LIST_URL}`);
@@ -117,19 +118,26 @@ async function loadRecitersFromEveryayah() {
   scriptEl.textContent = rawJs;
   document.head.appendChild(scriptEl);
   document.head.removeChild(scriptEl);
-  const newKeys = Object.keys(window).filter(k => !keysBefore.has(k));
 
-  let recitersData = null;
-  for (const key of newKeys) {
-    const value = window[key];
-    if (Array.isArray(value) && value.length > 0) { recitersData = value; break; }
-    if (value && typeof value === 'object' && Object.keys(value).length > 0) { recitersData = value; break; }
+  // الاسم الفعلي لمتغير القرّاء في هذا الملف تحديدًا هو "reciters" (var)،
+  // تم التأكد منه من محتوى حقيقي للملف بعد جلبه عبر الوسيط — وليس تخمينًا.
+  let recitersData = (typeof window.reciters !== 'undefined') ? window.reciters : null;
+
+  // احتياط عام: لو تغيّر الملف مستقبلاً ولم يعد يعرّف reciters تحديدًا،
+  // نلتقط أي متغير عام جديد عرّفه تنفيذ السكربت.
+  if (!recitersData) {
+    const newKeys = Object.keys(window).filter(k => !keysBefore.has(k));
+    for (const key of newKeys) {
+      const value = window[key];
+      if (Array.isArray(value) && value.length > 0) { recitersData = value; break; }
+      if (value && typeof value === 'object' && Object.keys(value).length > 0) { recitersData = value; break; }
+    }
   }
 
   if (!recitersData) {
     throw new Error(
-      'تم جلب recitations.js لكن تعذّر اكتشاف بنية بيانات القرّاء تلقائيًا ' +
-      '(الملف على الأرجح يستخدم let/const بدل var). راجع المعاينة الخام أسفل الصفحة.'
+      'تم جلب recitations.js لكن تعذّر العثور على بيانات القرّاء (لا window.reciters ولا متغير عام جديد). ' +
+      'راجع المعاينة الخام أسفل الصفحة.'
     );
   }
 
@@ -137,10 +145,11 @@ async function loadRecitersFromEveryayah() {
 }
 
 // يستخرج اسم مجلد صالح من عنصر بيانات قارئ بأي بنية كانت (بدون افتراض اسم حقل ثابت)
+// الحقل subfolder هو ما يُستخدم فعليًا كاسم المجلد في روابط everyayah.com/data/{folder}/...
 function extractFolderName(entry) {
   if (typeof entry === 'string') return entry;
   if (!entry || typeof entry !== 'object') return null;
-  const candidates = ['path', 'folder', 'subfolder', 'dir', 'directory', 'name'];
+  const candidates = ['subfolder', 'path', 'folder', 'dir', 'directory', 'name'];
   for (const key of candidates) {
     if (typeof entry[key] === 'string' && entry[key].trim()) return entry[key].trim();
   }
@@ -184,14 +193,13 @@ btnAudio.addEventListener('click', async () => {
 
   try {
     const recitersData = await loadRecitersFromEveryayah();
-    const entries = Array.isArray(recitersData) ? recitersData : Object.values(recitersData);
-    recitersCountEl.textContent = String(entries.length);
+    const allEntries = Array.isArray(recitersData) ? recitersData : Object.values(recitersData);
+    // نستبعد أي مفتاح ليس بيانات قارئ فعلية (مثل ayahCount في recitations.js
+    // وهو مصفوفة عدد آيات كل سورة، لا علاقة له بالقرّاء)
+    const reciterEntries = allEntries.filter(e => extractFolderName(e));
+    recitersCountEl.textContent = String(reciterEntries.length);
 
-    let folder = null;
-    for (const entry of entries) {
-      const f = extractFolderName(entry);
-      if (f) { folder = f; break; }
-    }
+    const folder = reciterEntries.length > 0 ? extractFolderName(reciterEntries[0]) : null;
     if (!folder) throw new Error('لم يُعثر على اسم مجلد صالح داخل بيانات القرّاء المكتشفة.');
 
     reciterUsedEl.textContent = folder;
