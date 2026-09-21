@@ -215,11 +215,12 @@ async function initBackgroundGrid() {
   const noneCard = `
     <button type="button" class="bg-card bg-none selected" data-id="none">بدون خلفية<br>(أسود)</button>
   `;
+  // thumbnail دائمًا صورة ثابتة (WebP)، حتى لعناصر الفيديو — لا نضعها أبدًا
+  // داخل وسم <video> (فشل التصغيرات المتحركة كان بسبب ذلك بالضبط)
   const manifestCards = state.backgroundManifest.map(entry => `
     <button type="button" class="bg-card" data-id="${entry.id}">
-      ${entry.type === 'video'
-        ? `<video src="${BACKGROUND_BASE_PATH}${entry.thumbnail || entry.file}" muted playsinline loop autoplay></video><span class="bg-badge">متحرك</span>`
-        : `<img src="${BACKGROUND_BASE_PATH}${entry.thumbnail || entry.file}" alt="">`}
+      <img src="${BACKGROUND_BASE_PATH}${entry.thumbnail || entry.file}" alt="">
+      ${entry.type === 'video' ? `<span class="bg-badge">متحرك</span>` : ''}
     </button>
   `).join('');
 
