@@ -103,9 +103,10 @@ btnText.addEventListener('click', async () => {
 
 // ------- اختبار 2: صوت آية الكرسي -------
 
-// يجلب ملف recitations.js وينفّذه كسكربت JS فعلي (وليس بـ regex هش)، حتى
-// تُعرَّف متغيراته تمامًا كما لو حُمِّل الملف بوسم <script> عادي — يعمل هذا
-// مع var (يُعرَّف على window مباشرة) ومع let/const عبر الالتقاط الاحتياطي.
+// يجلب ملف recitations.js. رغم اسمه واسم مساره (data/recitations.js)، محتواه
+// الفعلي JSON خام (يبدأ بـ { وينتهي بـ }، بدون أي "var" أو تسمية متغير) —
+// تم التأكد من هذا بفتح الرابط مباشرة، وليس تخمينًا. لذلك نحلّله بـ
+// JSON.parse مباشرة بدل تنفيذه كسكربت (الذي كان يفشل بصمت بخطأ صياغة).
 async function loadRecitersFromEveryayah() {
   const res = await fetch(viaProxy(RECITATIONS_LIST_URL));
   if (!res.ok) throw new Error(`استجابة غير ناجحة (${res.status}) من ${RECITATIONS_LIST_URL}`);
@@ -113,32 +114,15 @@ async function loadRecitersFromEveryayah() {
 
   rawRecitationsDebug.textContent = rawJs.slice(0, 4000);
 
-  const keysBefore = new Set(Object.keys(window));
-  const scriptEl = document.createElement('script');
-  scriptEl.textContent = rawJs;
-  document.head.appendChild(scriptEl);
-  document.head.removeChild(scriptEl);
-
-  // الاسم الفعلي لمتغير القرّاء في هذا الملف تحديدًا هو "reciters" (var)،
-  // تم التأكد منه من محتوى حقيقي للملف بعد جلبه عبر الوسيط — وليس تخمينًا.
-  let recitersData = (typeof window.reciters !== 'undefined') ? window.reciters : null;
-
-  // احتياط عام: لو تغيّر الملف مستقبلاً ولم يعد يعرّف reciters تحديدًا،
-  // نلتقط أي متغير عام جديد عرّفه تنفيذ السكربت.
-  if (!recitersData) {
-    const newKeys = Object.keys(window).filter(k => !keysBefore.has(k));
-    for (const key of newKeys) {
-      const value = window[key];
-      if (Array.isArray(value) && value.length > 0) { recitersData = value; break; }
-      if (value && typeof value === 'object' && Object.keys(value).length > 0) { recitersData = value; break; }
-    }
+  let recitersData;
+  try {
+    recitersData = JSON.parse(rawJs);
+  } catch (err) {
+    throw new Error(`تعذّر تحليل recitations.js كـ JSON: ${err.message}. راجع المعاينة الخام أسفل الصفحة.`);
   }
 
-  if (!recitersData) {
-    throw new Error(
-      'تم جلب recitations.js لكن تعذّر العثور على بيانات القرّاء (لا window.reciters ولا متغير عام جديد). ' +
-      'راجع المعاينة الخام أسفل الصفحة.'
-    );
+  if (!recitersData || typeof recitersData !== 'object') {
+    throw new Error('محتوى recitations.js بعد التحليل ليس كائنًا صالحًا.');
   }
 
   return recitersData;
