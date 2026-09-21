@@ -1,0 +1,214 @@
+{
+  "backgrounds": [
+    {
+      "id": "video-1",
+      "type": "video",
+      "file": "video-1.mp4",
+      "thumbnail": "video-1-thumb.webp",
+      "query": "mountains landscape nature",
+      "credit": {
+        "photographer": "Oskar Gross",
+        "pexelsUrl": "https://www.pexels.com/video/aerial-view-of-scenic-mountain-valley-landscape-29035454/"
+      }
+    },
+    {
+      "id": "video-2",
+      "type": "video",
+      "file": "video-2.mp4",
+      "thumbnail": "video-2-thumb.webp",
+      "query": "mountains landscape nature",
+      "credit": {
+        "photographer": "C1 Superstar",
+        "pexelsUrl": "https://www.pexels.com/video/stunning-view-of-green-alpine-mountains-32200251/"
+      }
+    },
+    {
+      "id": "video-4",
+      "type": "video",
+      "file": "video-4.mp4",
+      "thumbnail": "video-4-thumb.webp",
+      "query": "ocean waves nature",
+      "credit": {
+        "photographer": "Melike",
+        "pexelsUrl": "https://www.pexels.com/video/dynamic-ocean-waves-in-powerful-motion-38282990/"
+      }
+    },
+    {
+      "id": "video-5",
+      "type": "video",
+      "file": "video-5.mp4",
+      "thumbnail": "video-5-thumb.webp",
+      "query": "forest trees nature",
+      "credit": {
+        "photographer": "Vero Lova",
+        "pexelsUrl": "https://www.pexels.com/video/tranquil-sky-view-through-lush-spring-trees-37406432/"
+      }
+    },
+    {
+      "id": "video-6",
+      "type": "video",
+      "file": "video-6.mp4",
+      "thumbnail": "video-6-thumb.webp",
+      "query": "forest trees nature",
+      "credit": {
+        "photographer": "Marta Wave",
+        "pexelsUrl": "https://www.pexels.com/video/vertical-videos-of-trees-5873182/"
+      }
+    },
+    {
+      "id": "video-7",
+      "type": "video",
+      "file": "video-7.mp4",
+      "thumbnail": "video-7-thumb.webp",
+      "query": "desert dunes nature",
+      "credit": {
+        "photographer": "Andrey Denin",
+        "pexelsUrl": "https://www.pexels.com/video/the-sand-dunes-are-very-large-and-have-many-lines-19797595/"
+      }
+    },
+    {
+      "id": "video-8",
+      "type": "video",
+      "file": "video-8.mp4",
+      "thumbnail": "video-8-thumb.webp",
+      "query": "desert dunes nature",
+      "credit": {
+        "photographer": "Mohammed Sahil  Sarafudeen",
+        "pexelsUrl": "https://www.pexels.com/video/hand-sipping-sand-on-desert-12705917/"
+      }
+    },
+    {
+      "id": "video-9",
+      "type": "video",
+      "file": "video-9.mp4",
+      "thumbnail": "video-9-thumb.webp",
+      "query": "night sky stars nature",
+      "credit": {
+        "photographer": "Fatih Berat Örer",
+        "pexelsUrl": "https://www.pexels.com/video/mesmerizing-night-sky-star-trails-timelapse-33413565/"
+      }
+    },
+    {
+      "id": "video-10",
+      "type": "video",
+      "file": "video-10.mp4",
+      "thumbnail": "video-10-thumb.webp",
+      "query": "night sky stars nature",
+      "credit": {
+        "photographer": "Okan DEMİRCAN",
+        "pexelsUrl": "https://www.pexels.com/video/time-lapse-of-clouds-over-starry-night-sky-39003563/"
+      }
+    },
+    {
+      "id": "video-11",
+      "type": "video",
+      "file": "video-11.mp4",
+      "thumbnail": "video-11-thumb.webp",
+      "query": "waterfall nature",
+      "credit": {
+        "photographer": "Joshua Woroniecki",
+        "pexelsUrl": "https://www.pexels.com/video/beautiful-waterfalls-in-mountain-forest-19181145/"
+      }
+    },
+    {
+      "id": "video-12",
+      "type": "video",
+      "file": "video-12.mp4",
+      "thumbnail": "video-12-thumb.webp",
+      "query": "waterfall nature",
+      "credit": {
+        "photographer": "C1 Superstar",
+        "pexelsUrl": "https://www.pexels.com/video/beautiful-winter-waterfall-cascade-31002853/"
+      }
+    },
+    {
+      "id": "photo-1",
+      "type": "image",
+      "file": "photo-1.webp",
+      "thumbnail": "photo-1-thumb.webp",
+      "query": "mountains landscape nature",
+      "credit": {
+        "photographer": "Vasily Kotlyarov",
+        "pexelsUrl": "https://www.pexels.com/photo/rocky-hill-in-mountains-9166681/"
+      }
+    },
+    {
+      "id": "photo-2",
+      "type": "image",
+      "file": "photo-2.webp",
+      "thumbnail": "photo-2-thumb.webp",
+      "query": "ocean sea nature",
+      "credit": {
+        "photographer": "Hümeyra Kalkan",
+        "pexelsUrl": "https://www.pexels.com/photo/a-boat-is-in-the-water-with-waves-28336600/"
+      }
+    },
+    {
+      "id": "photo-3",
+      "type": "image",
+      "file": "photo-3.webp",
+      "thumbnail": "photo-3-thumb.webp",
+      "query": "forest nature trees",
+      "credit": {
+        "photographer": "Lauri Poldre",
+        "pexelsUrl": "https://www.pexels.com/photo/footpath-in-a-forest-18435709/"
+      }
+    },
+    {
+      "id": "photo-4",
+      "type": "image",
+      "file": "photo-4.webp",
+      "thumbnail": "photo-4-thumb.webp",
+      "query": "desert dunes nature",
+      "credit": {
+        "photographer": "raouf bedrani",
+        "pexelsUrl": "https://www.pexels.com/photo/sand-dune-11377054/"
+      }
+    },
+    {
+      "id": "photo-5",
+      "type": "image",
+      "file": "photo-5.webp",
+      "thumbnail": "photo-5-thumb.webp",
+      "query": "night sky stars nature",
+      "credit": {
+        "photographer": "Jakob  Nowotni",
+        "pexelsUrl": "https://www.pexels.com/photo/starry-night-sky-over-snowy-forest-landscape-36706821/"
+      }
+    },
+    {
+      "id": "photo-6",
+      "type": "image",
+      "file": "photo-6.webp",
+      "thumbnail": "photo-6-thumb.webp",
+      "query": "waterfall nature",
+      "credit": {
+        "photographer": "Stephane Hurbe",
+        "pexelsUrl": "https://www.pexels.com/photo/green-trees-beside-the-waterfalls-12360414/"
+      }
+    },
+    {
+      "id": "photo-7",
+      "type": "image",
+      "file": "photo-7.webp",
+      "thumbnail": "photo-7-thumb.webp",
+      "query": "clouds sky nature",
+      "credit": {
+        "photographer": "Thayná Barsan",
+        "pexelsUrl": "https://www.pexels.com/photo/clouds-on-sky-in-black-and-white-15499567/"
+      }
+    },
+    {
+      "id": "photo-8",
+      "type": "image",
+      "file": "photo-8.webp",
+      "thumbnail": "photo-8-thumb.webp",
+      "query": "sunset nature landscape",
+      "credit": {
+        "photographer": "Wahidin - Jaguar",
+        "pexelsUrl": "https://www.pexels.com/photo/serene-sunset-over-tranquil-field-landscape-34331488/"
+      }
+    }
+  ],
+  "generatedAt": "2026-09-21T23:46:59.095Z"
+}
