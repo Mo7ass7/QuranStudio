@@ -171,9 +171,33 @@ document.getElementById('toPlus').addEventListener('click', () => {
   updateAyahSteppers();
 });
 
-// كتابة رقم الآية مباشرة بدل الاكتفاء بأزرار +/-
-fromValueEl.addEventListener('focus', () => fromValueEl.select());
-toValueEl.addEventListener('focus', () => toValueEl.select());
+// كتابة رقم الآية مباشرة بدل الاكتفاء بأزرار +/- فقط
+// (text + inputmode="numeric" بدل type="number": يفتح نفس لوحة المفاتيح
+// الرقمية على الجوال، لكن بلا القيود/الأعطال المعروفة لـ type="number" في
+// بعض المتصفحات المدمجة — مثل صعوبة التحديد/الكتابة فوق القيمة الحالية.
+// بلا select() تلقائي عند التركيز أيضًا لأنه كان يُظهر فقاعة "تحديد/نسخ"
+// بدل فتح لوحة المفاتيح مباشرة على أندرويد)
+function onlyDigits(el) {
+  const cleaned = el.value.replace(/[^0-9]/g, '');
+  if (cleaned !== el.value) el.value = cleaned;
+}
+fromValueEl.addEventListener('input', () => onlyDigits(fromValueEl));
+toValueEl.addEventListener('input', () => onlyDigits(toValueEl));
+
+// عند فتح الحقل باللمس يضع بعض المتصفحات المؤشر في بدايته لا نهايته، فيصبح
+// الحذف من دون أثر والكتابة إدراجًا قبل الرقم القديم بدل الكتابة فوقه
+// (مثال: من "1" إلى "901" بدل "90"). لا نستخدم select() الكامل لأنه يُظهر
+// فقاعة "تحديد/نسخ" بدل فتح لوحة المفاتيح على أندرويد — مؤشر بلا تحديد
+// في النهاية يكفي ليعمل الحذف/الكتابة بشكل طبيعي.
+function placeCursorAtEnd(el) {
+  const len = el.value.length;
+  try { el.setSelectionRange(len, len); } catch { /* بعض أنواع الحقول لا تدعمها */ }
+}
+// تأجيل بسيط (0ms): على الجوال يضع المتصفح المؤشر عند نقطة اللمس بعد حدث
+// focus مباشرة (كجزء من معالجة اللمسة نفسها)، فيُبطل موضعنا إن ضبطناه فورًا
+[fromValueEl, toValueEl].forEach((el) => {
+  el.addEventListener('focus', () => setTimeout(() => placeCursorAtEnd(el), 0));
+});
 
 fromValueEl.addEventListener('change', () => {
   if (!state.selectedSurah) return;

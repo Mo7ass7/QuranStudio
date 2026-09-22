@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=12">
-<link rel="stylesheet" href="css/app.css?v=12">
+<link rel="stylesheet" href="fonts/fonts.css?v=14">
+<link rel="stylesheet" href="css/app.css?v=14">
 </head>
 <body>
   <header class="topbar">
@@ -34,13 +34,13 @@
         <input type="range" id="seekBar" class="seek-bar" min="0" max="1000" value="0" step="1">
         <div class="transport-row">
           <button id="btnBack5" class="transport-btn" title="رجوع 5 ثوانٍ">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg><span>٥ ث</span>
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg><span>5 ث</span>
           </button>
           <button id="btnPlayPause" class="transport-btn transport-btn-main" title="تشغيل/إيقاف">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg><span>تشغيل</span>
           </button>
           <button id="btnFwd5" class="transport-btn" title="تقديم 5 ثوانٍ">
-            <span>٥ ث</span><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+            <span>5 ث</span><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
           </button>
           <button id="btnRestart" class="transport-btn transport-btn-icon" title="من البداية">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 5V2L7 6.5 12 11V8a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg>
@@ -63,7 +63,7 @@
               <span class="field-label">من آية</span>
               <div class="stepper">
                 <button type="button" class="stepper-btn" id="fromMinus">−</button>
-                <input type="number" id="fromValue" class="stepper-value" inputmode="numeric" pattern="[0-9]*" min="1" value="1">
+                <input type="text" id="fromValue" class="stepper-value" inputmode="numeric" pattern="[0-9]*" value="1">
                 <button type="button" class="stepper-btn" id="fromPlus">+</button>
               </div>
             </div>
@@ -71,7 +71,7 @@
               <span class="field-label">إلى آية</span>
               <div class="stepper">
                 <button type="button" class="stepper-btn" id="toMinus">−</button>
-                <input type="number" id="toValue" class="stepper-value" inputmode="numeric" pattern="[0-9]*" min="1" value="1">
+                <input type="text" id="toValue" class="stepper-value" inputmode="numeric" pattern="[0-9]*" value="1">
                 <button type="button" class="stepper-btn" id="toPlus">+</button>
               </div>
             </div>
@@ -169,15 +169,15 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=12"></script>
-  <script src="js/reciters.js?v=12"></script>
-  <script src="js/everyayahIndex.js?v=12"></script>
-  <script src="js/quranApi.js?v=12"></script>
-  <script src="js/audioEngine.js?v=12"></script>
-  <script src="js/backgroundManager.js?v=12"></script>
-  <script src="js/renderer.js?v=12"></script>
-  <script src="js/player.js?v=12"></script>
-  <script src="js/export.js?v=12"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/config.js?v=14"></script>
+  <script src="js/reciters.js?v=14"></script>
+  <script src="js/everyayahIndex.js?v=14"></script>
+  <script src="js/quranApi.js?v=14"></script>
+  <script src="js/audioEngine.js?v=14"></script>
+  <script src="js/backgroundManager.js?v=14"></script>
+  <script src="js/renderer.js?v=14"></script>
+  <script src="js/player.js?v=14"></script>
+  <script src="js/export.js?v=14"></script>
+  <script src="js/app.js?v=14"></script>
 </body>
 </html>
