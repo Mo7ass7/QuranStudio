@@ -1,4 +1,4 @@
-// QuranStudio — قائمة القرّاء
+// QuranStudio — قائمة القرّاء (34 قارئًا)
 //
 // ملاحظة مهمة: لا نكتب اسم مجلد everyayah.com هنا يدويًا إطلاقًا (تجنبًا
 // للتخمين). بدل ذلك نحفظ لكل قارئ كلمات مطابقة (match) بالإنجليزية تُقارَن
@@ -7,11 +7,11 @@
 // الحية فقط. preferInclude/avoid يُستخدمان للتمييز بين نسخة "مرتل" و"مجوّد"
 // عند وجود أكثر من مجلد لنفس القارئ.
 //
-// المرحلة 3: توسيع القائمة من 10 إلى 39 قارئًا. بما أنني لا أملك وصول شبكة
-// لـ everyayah.com من بيئتي، أضفت هامشًا من المرشحين (٤٢) بدل ٣٩ بالضبط،
-// على أن تُشغَّل debug/verify-reciters.html من جهاز حقيقي فتختبر كل قارئ
-// فعليًا (حل + تحميل عينة صوت) وتطبع تقرير من نجح ومن فشل، ثم تُحذف/تُستبدل
-// العناصر الفاشلة هنا حتى يستقر العدد على 39 قارئًا حقيقيًا يعمل رابطه.
+// المرحلة 3: هذه القائمة مُختبَرة فعليًا (وليست تخمينًا) عبر
+// debug/verify-reciters.html على جهاز حقيقي — 34 من أصل 41 مرشّحًا نجحوا
+// (حل المجلد + تحميل عينة صوت حقيقية من everyayah.com). حُذف السبعة
+// الفاشلون: shatri, juhani, sahl-yaseen, nabil-rifai, suwaisi, matrood,
+// zahrani — لم يُعثر لهم على مجلد مطابق في الفهرس الحي.
 
 // var عمدًا (انظر ملاحظة js/config.js) لضمان رؤية RECITERS من app.js
 var RECITERS = [
@@ -46,7 +46,6 @@ var RECITERS = [
     id: 'minshawi-mujawwad', name: 'محمد صديق المنشاوي (مجوّد)', country: 'مصر',
     match: ['minshawi', 'menshawi'], preferInclude: ['mujawwad'],
   },
-  { id: 'shatri', name: 'أبو بكر الشاطري', country: 'السعودية', match: ['shatri', 'shaatri'] },
   { id: 'ajmy', name: 'أحمد بن علي العجمي', country: 'السعودية', match: ['ajamy', 'ajmi', 'al-ajamy'] },
   { id: 'akhdar', name: 'إبراهيم الأخضر', country: 'السعودية', match: ['akhdar'] },
   { id: 'ayyoub', name: 'محمد أيوب', country: 'السعودية', match: ['ayyoub', 'ayyub'] },
@@ -58,20 +57,14 @@ var RECITERS = [
   { id: 'tunaiji', name: 'خليفة الطنيجي', country: 'الإمارات', match: ['tunaiji', 'taunayjy'] },
   { id: 'hani-rifai', name: 'هاني الرفاعي', country: 'السعودية', match: ['hanirifai', 'hani_rifai', 'rifai'] },
   { id: 'ali-jaber', name: 'علي جابر', country: 'السعودية', match: ['alijaber', 'ali_jaber'] },
-  { id: 'juhani', name: 'عبدالله الجهني', country: 'السعودية', match: ['aljuhani', 'abdullah_juhani', 'juhany'] },
   { id: 'mustafa-ismail', name: 'مصطفى إسماعيل', country: 'مصر', match: ['mustafaismail', 'mostafaismaeel', 'mustafa_ismail'] },
   { id: 'tablaway', name: 'محمد الطبلاوي', country: 'مصر', match: ['tablaway', 'altablawy'] },
   { id: 'muhsin-qasim', name: 'محسن القاسم', country: 'السعودية', match: ['muhsinalqasim', 'muhsin_al_qasim', 'al_qasim'] },
-  { id: 'sahl-yaseen', name: 'سهل ياسين', country: 'السعودية', match: ['sahlyaseen', 'sahl_yaseen'] },
   { id: 'bukhatir', name: 'صلاح عبدالرحمن بوخاطر', country: 'الإمارات', match: ['bukhatir'] },
-  { id: 'nabil-rifai', name: 'نبيل الرفاعي', country: 'مصر', match: ['nabilrifai', 'nabil_rifai'] },
   { id: 'karim-mansoori', name: 'كريم منصوري', country: 'السعودية', match: ['karimmansoori', 'karim_mansoori'] },
   { id: 'aziz-alili', name: 'عزيز عليلي', country: 'المغرب', match: ['azizalili', 'aziz_alili'] },
   { id: 'ahmed-neana', name: 'أحمد نعينع', country: 'مصر', match: ['ahmedneana', 'ahmed_neana'] },
   { id: 'akram-alaqimy', name: 'أكرم العلاقمي', country: 'اليمن', match: ['akram', 'alaqimy'] },
   { id: 'khalid-qahtani', name: 'خالد القحطاني', country: 'السعودية', match: ['khalidalqahtani', 'al-qahtaanee', 'qahtaanee'] },
-  { id: 'suwaisi', name: 'علي حجاج السويسي', country: 'تونس', match: ['alisuwaisi', 'al_suwaisi', 'suwaisi'] },
-  { id: 'matrood', name: 'عبدالله المطرود', country: 'السعودية', match: ['matrood', 'almatrood'] },
   { id: 'yaser-salamah', name: 'ياسر سلامة', country: 'مصر', match: ['yasersalamah', 'yaser_salamah'] },
-  { id: 'zahrani', name: 'عبدالعزيز الزهراني', country: 'السعودية', match: ['zahrani'] },
 ];
