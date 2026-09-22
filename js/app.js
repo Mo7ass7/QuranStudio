@@ -17,6 +17,7 @@ const state = {
   counterStyle: 'pill',
   aspectRatio: '9:16',
   quality: 'normal',
+  watermarkText: SITE_NAME,
   frameData: null, // { layouts, timings, surahName, reciterName, fromAyah, toAyah, ... }
   mergedBuffer: null,
   totalDuration: 0,
@@ -40,6 +41,8 @@ const toggleReciterNameEl = document.getElementById('toggleReciterName');
 const counterStyleListEl = document.getElementById('counterStyleList');
 const aspectRatioListEl = document.getElementById('aspectRatioList');
 const qualityListEl = document.getElementById('qualityList');
+const watermarkInputEl = document.getElementById('watermarkInput');
+const recorderSupportEl = document.getElementById('recorderSupport');
 
 const btnGenerate = document.getElementById('btnGenerate');
 const btnReset = document.getElementById('btnReset');
@@ -289,6 +292,23 @@ toggleReciterNameEl.addEventListener('change', () => {
   state.showReciterName = toggleReciterNameEl.checked;
 });
 
+watermarkInputEl.addEventListener('input', () => {
+  state.watermarkText = watermarkInputEl.value;
+});
+
+// يفحص دعم المتصفح الفعلي لصيغ التسجيل (نفس ما سيعتمد عليه زر التصدير)
+function reportRecorderSupport() {
+  if (typeof MediaRecorder === 'undefined' || !canvas.captureStream) {
+    recorderSupportEl.innerHTML = '<b>تسجيل الفيديو:</b> متصفحك لا يدعم MediaRecorder، ولن تعمل ميزة التصدير.';
+    return;
+  }
+  const supports = (type) => { try { return MediaRecorder.isTypeSupported(type); } catch { return false; } };
+  const mp4 = supports('video/mp4;codecs=avc1,mp4a.40.2') || supports('video/mp4');
+  const webm = supports('video/webm;codecs=vp9,opus') || supports('video/webm');
+  recorderSupportEl.innerHTML =
+    `<b>دعم التسجيل في متصفحك:</b> MP4 ${mp4 ? '✓' : '✗'} — WebM ${webm ? '✓' : '✗'}. هذا ما ستعتمد عليه ميزة التصدير.`;
+}
+
 function initAspectRatioList() {
   aspectRatioListEl.innerHTML = ASPECT_RATIOS.map(a => `
     <button type="button" class="option-card${a.id === state.aspectRatio ? ' selected' : ''}" data-id="${a.id}">${a.label}</button>
@@ -415,6 +435,7 @@ btnGenerate.addEventListener('click', async () => {
       showReciterName: state.showReciterName,
       counterStyle: state.counterStyle,
       background: state.activeBackground,
+      watermarkText: state.watermarkText,
     };
     state.mergedBuffer = buffer;
     state.totalDuration = totalDuration;
@@ -485,6 +506,9 @@ btnReset.addEventListener('click', () => {
   canvas.height = defaultDims.height;
   frameWrapEl.style.aspectRatio = `${defaultDims.width} / ${defaultDims.height}`;
 
+  state.watermarkText = SITE_NAME;
+  watermarkInputEl.value = SITE_NAME;
+
   if (state.surahList.length) setSurahByNumber(state.surahList[0].number);
   surahSelect.value = state.surahList[0] ? String(state.surahList[0].number) : '';
 });
@@ -533,6 +557,8 @@ btnExport.addEventListener('click', async () => {
 });
 
 // ------- التشغيل الأولي -------
+watermarkInputEl.value = state.watermarkText;
+reportRecorderSupport();
 initReciterGrid();
 initSurahList();
 initBackgroundGrid();

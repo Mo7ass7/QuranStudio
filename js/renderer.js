@@ -338,9 +338,10 @@ function createRenderer(canvas) {
     return drawAyahCounterPill(pos, M, ayahNumber, ccy, sc); // الافتراضي: حبّة
   }
 
-  // علامة مائية خفيفة باسم الموقع (SITE_NAME من js/config.js) أسفل وسط الإطار
-  function drawWatermark(sc) {
-    const text = String(SITE_NAME || '').trim();
+  // علامة مائية خفيفة باسم الموقع أسفل وسط الإطار (نص قابل للتعديل من
+  // تبويب "العرض"، افتراضيًا SITE_NAME من js/config.js)
+  function drawWatermark(sc, watermarkText) {
+    const text = String(watermarkText != null ? watermarkText : SITE_NAME || '').trim();
     if (!text) return;
     const w = canvas.width, h = canvas.height;
     ctx.font = uiFont(24 * sc, '500');
@@ -356,12 +357,12 @@ function createRenderer(canvas) {
   function draw(t, frameData) {
     const {
       layouts, timings, surahName, reciterName, fromAyah, toAyah,
-      fontFamily, showReciterName, counterStyle, background,
+      fontFamily, showReciterName, counterStyle, background, watermarkText,
     } = frameData;
 
     const sc = scaleFactor();
     drawBackground(background);
-    drawWatermark(sc);
+    drawWatermark(sc, watermarkText);
     drawHeaderBadges(surahName, reciterName, showReciterName !== false, sc);
 
     const totalDuration = timings.length ? timings[timings.length - 1].endTime : 0;

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=7">
-<link rel="stylesheet" href="css/app.css?v=7">
+<link rel="stylesheet" href="fonts/fonts.css?v=8">
+<link rel="stylesheet" href="css/app.css?v=8">
 </head>
 <body>
   <header class="topbar">
@@ -58,10 +58,15 @@
 
     <!-- تبويب الخلفية -->
     <section class="tab-panel" data-panel="background">
-      <label class="field-label">اختر الخلفية</label>
+      <div class="bg-top">
+        <label class="field-label" style="margin:0;">اختر الخلفية</label>
+        <button type="button" id="btnUploadBg" class="upload-btn">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5zM11 16h2V8.8l2.6 2.6L17 10l-5-5-5 5 1.4 1.4L11 8.8z"/></svg>
+          <span>رفع من الجهاز</span>
+        </button>
+        <input type="file" id="bgFileInput" accept="image/*,video/*" hidden>
+      </div>
       <div class="bg-grid" id="bgGrid"></div>
-      <input type="file" id="bgFileInput" accept="image/*,video/*" hidden>
-      <button type="button" id="btnUploadBg" class="btn btn-secondary bg-upload-btn">رفع من الجهاز (صورة أو فيديو)</button>
       <p class="hint" id="bgHint"></p>
     </section>
 
@@ -86,6 +91,11 @@
 
       <label class="field-label" style="margin-top:16px;">الجودة</label>
       <div class="option-row" id="qualityList"></div>
+
+      <label class="field-label" for="watermarkInput" style="margin-top:16px;">العلامة المائية (اسم موقعك)</label>
+      <input type="text" id="watermarkInput" class="select" maxlength="40">
+
+      <p class="hint support-line" id="recorderSupport"></p>
     </section>
 
     <!-- أزرار التحكم -->
@@ -147,15 +157,15 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=7"></script>
-  <script src="js/reciters.js?v=7"></script>
-  <script src="js/everyayahIndex.js?v=7"></script>
-  <script src="js/quranApi.js?v=7"></script>
-  <script src="js/audioEngine.js?v=7"></script>
-  <script src="js/backgroundManager.js?v=7"></script>
-  <script src="js/renderer.js?v=7"></script>
-  <script src="js/player.js?v=7"></script>
-  <script src="js/export.js?v=7"></script>
-  <script src="js/app.js?v=7"></script>
+  <script src="js/config.js?v=8"></script>
+  <script src="js/reciters.js?v=8"></script>
+  <script src="js/everyayahIndex.js?v=8"></script>
+  <script src="js/quranApi.js?v=8"></script>
+  <script src="js/audioEngine.js?v=8"></script>
+  <script src="js/backgroundManager.js?v=8"></script>
+  <script src="js/renderer.js?v=8"></script>
+  <script src="js/player.js?v=8"></script>
+  <script src="js/export.js?v=8"></script>
+  <script src="js/app.js?v=8"></script>
 </body>
 </html>
