@@ -4,10 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=22">
-<link rel="stylesheet" href="css/app.css?v=22">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e1210">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="fonts/fonts.css?v=23">
+<link rel="stylesheet" href="css/app.css?v=23">
 </head>
 <body>
+  <div class="pwa-install-banner" id="pwaInstallBanner" hidden>
+    <img class="pwa-install-icon" src="assets/icons/icon-192.png" alt="" width="40" height="40">
+    <div class="pwa-install-text">
+      <p class="pwa-install-title" id="pwaInstallTitle">ثبّت QuranStudio على شاشتك الرئيسية</p>
+      <p class="pwa-install-sub" id="pwaInstallSub">افتحه كتطبيق مستقل بلمسة واحدة، وحتى بلا إنترنت لفتح الواجهة.</p>
+    </div>
+    <div class="pwa-install-actions">
+      <button type="button" class="btn btn-secondary" id="btnPwaLater">لاحقًا</button>
+      <button type="button" class="btn btn-primary" id="btnPwaInstall">تثبيت</button>
+    </div>
+  </div>
+
   <header class="topbar">
     <h1>QuranStudio</h1>
     <p class="sub">أنشئ فيديو قرآني قصير مباشرة من متصفحك</p>
@@ -298,16 +313,17 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=22"></script>
-  <script src="js/reciters.js?v=22"></script>
-  <script src="js/everyayahIndex.js?v=22"></script>
-  <script src="js/ayahDuration.js?v=22"></script>
-  <script src="js/quranApi.js?v=22"></script>
-  <script src="js/audioEngine.js?v=22"></script>
-  <script src="js/backgroundManager.js?v=22"></script>
-  <script src="js/renderer.js?v=22"></script>
-  <script src="js/player.js?v=22"></script>
-  <script src="js/export.js?v=22"></script>
-  <script src="js/app.js?v=22"></script>
+  <script src="js/config.js?v=23"></script>
+  <script src="js/reciters.js?v=23"></script>
+  <script src="js/everyayahIndex.js?v=23"></script>
+  <script src="js/ayahDuration.js?v=23"></script>
+  <script src="js/quranApi.js?v=23"></script>
+  <script src="js/audioEngine.js?v=23"></script>
+  <script src="js/backgroundManager.js?v=23"></script>
+  <script src="js/renderer.js?v=23"></script>
+  <script src="js/player.js?v=23"></script>
+  <script src="js/export.js?v=23"></script>
+  <script src="js/app.js?v=23"></script>
+  <script src="js/pwaInstall.js?v=23"></script>
 </body>
 </html>
