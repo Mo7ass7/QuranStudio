@@ -62,7 +62,7 @@ async function findPortraitVideoFile(query, usedIds) {
   for (const video of candidates) {
     const files = video.video_files
       .filter(f => f.file_type === 'video/mp4' && f.width && f.height && f.width < f.height)
-      .sort((a, b) => a.width - b.width); // نبدأ بأصغر دقة لتقليل احتمال تجاوز 8MB
+      .sort((a, b) => b.width - a.width); // نبدأ بأعلى دقة متاحة، وننزل فقط إذا تجاوزت حجم 8MB
     if (files.length) return { video, files };
   }
   return null;
@@ -132,12 +132,15 @@ async function fetchPhotos(manifest, failed) {
       const photo = (data.photos || [])[0];
       if (!photo) { failed.push(`صورة #${index} (${query}) — لا نتائج`); continue; }
 
-      const srcUrl = photo.src.portrait || photo.src.large2x || photo.src.large;
+      // "original" هي الدقة الكاملة كما رُفعت (غالبًا عدة آلاف من البكسلات)؛
+      // "portrait" ثابتة عند 800×1200 فقط وتُنتج تحجيمًا للأعلى (ضبابية) عند
+      // تصغيرها لاحقًا إلى 1350px، لذلك نتجنبها كمصدر ونستخدمها فقط كخيار أخير
+      const srcUrl = photo.src.original || photo.src.large2x || photo.src.large || photo.src.portrait;
       const tmpJpg = path.join(OUT_DIR, `_tmp-photo-${index}.jpg`);
       await downloadToFile(srcUrl, tmpJpg);
 
       const fileName = `photo-${index}.webp`;
-      await sharp(tmpJpg).resize({ width: 1080 }).webp({ quality: 82 }).toFile(path.join(OUT_DIR, fileName));
+      await sharp(tmpJpg).resize({ width: 1350 }).webp({ quality: 90 }).toFile(path.join(OUT_DIR, fileName));
       await fs.rm(tmpJpg, { force: true });
 
       const thumbName = `photo-${index}-thumb.webp`;
