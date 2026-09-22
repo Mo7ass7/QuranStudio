@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=20">
-<link rel="stylesheet" href="css/app.css?v=20">
+<link rel="stylesheet" href="fonts/fonts.css?v=21">
+<link rel="stylesheet" href="css/app.css?v=21">
 </head>
 <body>
   <header class="topbar">
@@ -191,6 +191,101 @@
 
   </main>
 
+  <!-- نبذة عن الموقع + الأسئلة الشائعة — خارج بطاقة الإعدادات، أسفل الصفحة -->
+  <section class="about-section" id="aboutSection">
+    <div class="about-inner">
+      <h2 class="about-title">فيديوهات قرآنية قصيرة، <span class="accent-text">من متصفحك مباشرة</span></h2>
+      <p class="about-subtitle">بلا حساب، بلا تحميل تطبيق، وبلا أي تكلفة</p>
+
+      <p class="about-p">QuranStudio أداة مجانية تحوّل أي مجموعة آيات إلى فيديو قصير جاهز للنشر على إنستغرام وتيك توك ويوتيوب شورتس. تختار السورة ونطاق الآيات، ثم القارئ من بين قرّاء تم التحقق من صحة روابط أصواتهم فعليًا واحدًا واحدًا، ثم خلفية طبيعية متحركة أو صورة من هاتفك — والأداة تُنتج الفيديو أمامك خلال ثوانٍ.</p>
+      <p class="about-p">كل شيء يعمل داخل متصفحك: النص يُجلب حرفيًا من مصدر رسمي للرسم العثماني بلا كتابة يدوية، والصوت من مكتبة قرّاء موثوقة، والفيديو النهائي يُركَّب على جهازك نفسه دون رفع أي ملف لأي خادم. ما تصنعه يبقى لك وحدك حتى تقرر أنت مشاركته.</p>
+      <p class="about-p">يدعم الأداة أيضًا ترجمة إنجليزية اختيارية تظهر متزامنة مع كل جزء من الآية، لمن يريد مشاركة المعنى مع جمهور غير عربي.</p>
+
+      <div class="ayah-example-card" id="ayahExampleCard" hidden>
+        <p class="ayah-example-text" id="ayahExampleText"></p>
+        <p class="ayah-example-source" id="ayahExampleSource"></p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-num" id="statReciters">—</div>
+          <div class="stat-label">قارئًا موثقًا</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statBackgrounds">—</div>
+          <div class="stat-label">خلفية جاهزة</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">0</div>
+          <div class="stat-label">ريال تكلفة</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section" id="faqSection">
+    <div class="faq-inner">
+      <h2 class="faq-title">أسئلة شائعة</h2>
+      <div class="faq-list">
+
+        <details class="faq-item" open>
+          <summary class="faq-q">
+            <span class="faq-num">١</span>
+            <span class="faq-q-text">هل الأداة مجانية فعلاً؟</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+          </summary>
+          <p class="faq-a">نعم، بالكامل. لا اشتراك ولا حساب ولا حدّ لعدد الفيديوهات. QuranStudio يعمل كصفحة ويب مجانية بلا خادم خلفي يتحمّل تكلفة تشغيل لكل مستخدم.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="faq-num">٢</span>
+            <span class="faq-q-text">هل تُرفع بياناتي أو فيديوهاتي لأي خادم؟</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+          </summary>
+          <p class="faq-a">لا. التركيب النهائي للفيديو يحدث داخل متصفحك فقط. الاتصال بالإنترنت يُستخدم فقط لجلب نص الآية وملف الصوت وصور الخلفيات الجاهزة — أي صورة أو فيديو ترفعه أنت من جهازك كخلفية يبقى في متصفحك ولا يغادره أبدًا.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="faq-num">٣</span>
+            <span class="faq-q-text">من هم القرّاء المتاحون؟</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+          </summary>
+          <p class="faq-a">قائمة تضم 34 قارئًا، من بينهم العفاسي والسديس والشريم والمعيقلي والحصري وعبد الباسط والمنشاوي بنسختيهما المرتلة والمجوّدة. كل رابط صوت في القائمة تم اختباره فعليًا للتأكد أنه يعمل، لا أسماء مدرجة بلا تحقق.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="faq-num">٤</span>
+            <span class="faq-q-text">هل أملك حقوق التلاوات المستخدَمة؟</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+          </summary>
+          <p class="faq-a">لا. التسجيلات الصوتية ملك لأصحابها من القرّاء والجهات الناشرة لها، وQuranStudio يتيح لك الوصول إليها من مصدر عام متاح مجانًا.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="faq-num">٥</span>
+            <span class="faq-q-text">أي صيغ وأبعاد فيديو مدعومة؟</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+          </summary>
+          <p class="faq-a">عمودي 9:16 (للريلز والشورتس والستوري) أو أفقي 16:9، مع خيار جودة عادية أو جودة أقل (720p) لملف أخف وتصدير أسرع على الأجهزة الأضعف.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="faq-num">٦</span>
+            <span class="faq-q-text">هل يوجد حدّ لطول المقطع؟</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+          </summary>
+          <p class="faq-a">نعم، 3 دقائق كحد أقصى لكل فيديو. الأداة تعرض لك المدة الدقيقة فور اختيار نطاق الآيات، وتنبّهك بلون مختلف كلما اقتربت من الحد أو تجاوزته.</p>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
   <!-- شريط الإجراءات الثابت أسفل الشاشة -->
   <div class="sticky-actions" id="stickyActions">
     <div class="actions-row">
@@ -207,16 +302,16 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=20"></script>
-  <script src="js/reciters.js?v=20"></script>
-  <script src="js/everyayahIndex.js?v=20"></script>
-  <script src="js/ayahDuration.js?v=20"></script>
-  <script src="js/quranApi.js?v=20"></script>
-  <script src="js/audioEngine.js?v=20"></script>
-  <script src="js/backgroundManager.js?v=20"></script>
-  <script src="js/renderer.js?v=20"></script>
-  <script src="js/player.js?v=20"></script>
-  <script src="js/export.js?v=20"></script>
-  <script src="js/app.js?v=20"></script>
+  <script src="js/config.js?v=21"></script>
+  <script src="js/reciters.js?v=21"></script>
+  <script src="js/everyayahIndex.js?v=21"></script>
+  <script src="js/ayahDuration.js?v=21"></script>
+  <script src="js/quranApi.js?v=21"></script>
+  <script src="js/audioEngine.js?v=21"></script>
+  <script src="js/backgroundManager.js?v=21"></script>
+  <script src="js/renderer.js?v=21"></script>
+  <script src="js/player.js?v=21"></script>
+  <script src="js/export.js?v=21"></script>
+  <script src="js/app.js?v=21"></script>
 </body>
 </html>
