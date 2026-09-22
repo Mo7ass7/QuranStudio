@@ -17,7 +17,7 @@
 var RECITERS = [
   { id: 'alafasy', name: 'مشاري راشد العفاسي', country: 'الكويت', match: ['alafasy'] },
   { id: 'sudais', name: 'عبدالرحمن السديس', country: 'السعودية', match: ['sudais'] },
-  { id: 'shuraim', name: 'سعود الشريم', country: 'السعودية', match: ['shuraim', 'shurayn'] },
+  { id: 'shuraim', name: 'سعود الشريم', country: 'السعودية', match: ['shuraim', 'shuraym', 'shurym', 'shurim'] },
   { id: 'muaiqly', name: 'ماهر المعيقلي', country: 'السعودية', match: ['muaiqly', 'maher'] },
   { id: 'dossari', name: 'ياسر الدوسري', country: 'السعودية', match: ['dossari', 'dosari', 'dussary', 'dussari'] },
   { id: 'ghamdi', name: 'سعد الغامدي', country: 'السعودية', match: ['ghamdi', 'ghamadi'] },
