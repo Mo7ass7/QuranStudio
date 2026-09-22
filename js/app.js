@@ -72,6 +72,12 @@ const exportStatusEl = document.getElementById('exportStatus');
 const errorCardEl = document.getElementById('errorCard');
 const errorMsgEl = document.getElementById('errorMsg');
 
+const bylineSurahEl = document.getElementById('bylineSurah');
+const bylineReciterEl = document.getElementById('bylineReciter');
+const previewAspectBadgeEl = document.getElementById('previewAspectBadge');
+const ayahProgressFillEl = document.getElementById('ayahProgressFill');
+const stepperNavEl = document.getElementById('stepperNav');
+
 const renderer = createRenderer(canvas);
 
 // ------- أدوات مساعدة -------
@@ -113,12 +119,58 @@ accordionEl.addEventListener('click', (e) => {
     it.classList.toggle('open', open);
     it.querySelector('.acc-body').hidden = !open;
   });
+  syncStepperNav();
 });
+
+// ------- شريط الخطوات أعلى الإعدادات: مرآة بصرية للأكورديون + تنقّل سريع -------
+const stepItems = Array.from(stepperNavEl.querySelectorAll('.step-item'));
+const stepLines = Array.from(stepperNavEl.querySelectorAll('.step-line'));
+
+function syncStepperNav() {
+  const openItem = accordionEl.querySelector('.acc-item.open');
+  const activeKey = openItem ? openItem.dataset.acc : null;
+  const activeIndex = stepItems.findIndex((s) => s.dataset.step === activeKey);
+  stepItems.forEach((s, i) => {
+    s.classList.toggle('active', i === activeIndex);
+    s.classList.toggle('done', activeIndex !== -1 && i < activeIndex);
+  });
+  stepLines.forEach((l, i) => {
+    l.classList.toggle('done', activeIndex !== -1 && i < activeIndex);
+  });
+}
+
+function openAccordionSection(key) {
+  accordionEl.querySelectorAll('.acc-item').forEach((it) => {
+    const open = it.dataset.acc === key;
+    it.classList.toggle('open', open);
+    it.querySelector('.acc-body').hidden = !open;
+  });
+  syncStepperNav();
+}
+
+stepItems.forEach((s) => {
+  s.addEventListener('click', () => openAccordionSection(s.dataset.step));
+});
+
+syncStepperNav();
 
 // ------- تبويب السورة -------
 function updateAyahSteppers() {
   fromValueEl.value = String(state.fromAyah);
   toValueEl.value = String(state.toAyah);
+  updateAyahProgressBar();
+}
+
+// شريط تقدّم بصري فوق سبنرز الآيات يعكس موضع النطاق [من–إلى] ضمن السورة
+function updateAyahProgressBar() {
+  const count = state.selectedSurah ? state.selectedSurah.ayahCount : 1;
+  const span = Math.max(1, count - 1);
+  const fromPct = ((state.fromAyah - 1) / span) * 100;
+  const toPct = ((state.toAyah - 1) / span) * 100;
+  const start = Math.min(fromPct, toPct);
+  const width = Math.max(2, Math.abs(toPct - fromPct));
+  ayahProgressFillEl.style.insetInlineStart = `${start}%`;
+  ayahProgressFillEl.style.width = `${width}%`;
 }
 
 function clampAyahNumber(n) {
@@ -134,6 +186,7 @@ function setSurahByNumber(number) {
   state.toAyah = 1;
   updateAyahSteppers();
   surahHintEl.textContent = `عدد آيات ${surah.name}: ${surah.ayahCount}`;
+  bylineSurahEl.textContent = surah.name;
 }
 
 async function initSurahList() {
@@ -226,10 +279,13 @@ function initReciterSelect() {
   state.selectedReciterId = RECITERS[0].id;
   reciterSelectEl.value = state.selectedReciterId;
   reciterHintEl.textContent = `${RECITERS.length} قارئًا متاحًا.`;
+  bylineReciterEl.textContent = RECITERS[0].name;
 }
 
 reciterSelectEl.addEventListener('change', () => {
   state.selectedReciterId = reciterSelectEl.value;
+  const reciter = RECITERS.find(r => r.id === state.selectedReciterId);
+  bylineReciterEl.textContent = reciter ? reciter.name : '—';
 });
 
 // ------- تبويب الخلفية -------
@@ -379,6 +435,7 @@ aspectRatioListEl.addEventListener('click', (e) => {
   if (!card) return;
   state.aspectRatio = card.dataset.id;
   aspectRatioListEl.querySelectorAll('.option-card').forEach(c => c.classList.toggle('selected', c === card));
+  previewAspectBadgeEl.textContent = state.aspectRatio;
 });
 
 function initQualityList() {
@@ -541,6 +598,7 @@ btnReset.addEventListener('click', () => {
 
   state.selectedReciterId = RECITERS[0].id;
   reciterSelectEl.value = state.selectedReciterId;
+  bylineReciterEl.textContent = RECITERS[0].name;
 
   state.selectedBackgroundId = 'none';
   state.uploadedBgFile = null;
@@ -563,6 +621,7 @@ btnReset.addEventListener('click', () => {
 
   state.aspectRatio = '9:16';
   aspectRatioListEl.querySelectorAll('.option-card').forEach(c => c.classList.toggle('selected', c.dataset.id === '9:16'));
+  previewAspectBadgeEl.textContent = '9:16';
   state.quality = 'normal';
   qualityListEl.querySelectorAll('.option-card').forEach(c => c.classList.toggle('selected', c.dataset.id === 'normal'));
   const defaultDims = getFrameDimensions('9:16', 'normal');
