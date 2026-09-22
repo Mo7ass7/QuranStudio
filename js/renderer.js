@@ -144,6 +144,23 @@ function createRenderer(canvas) {
     return { fontSize: minSize, lineHeight: minSize * 1.5, lines: wrapText(text, maxWidth) };
   }
 
+  // يقسّم كلمات الترجمة إلى أجزاء بنفس نِسَب أسطر النص العربي (shares) —
+  // تقريب لا محاذاة حقيقية (لا يوجد ربط كلمة-بكلمة بين اللغتين)، لكنه يبقي
+  // الترجمة متزامنة تقريبًا مع السطر العربي الظاهر في نفس اللحظة بدل
+  // عرضها دفعة واحدة كاملة مع آخر سطر فقط
+  function splitTranslationByShares(translation, shares) {
+    const words = translation.split(/\s+/).filter(Boolean);
+    if (!words.length) return shares.map(() => '');
+    let idx = 0;
+    return shares.map((share, i) => {
+      const isLast = i === shares.length - 1;
+      const count = isLast ? words.length - idx : Math.max(1, Math.round(share * words.length));
+      const segment = words.slice(idx, Math.min(words.length, idx + count));
+      idx += segment.length;
+      return segment.join(' ');
+    });
+  }
+
   function prepareAyahLayout(text, timing, fontFamily, sc, tall, translation) {
     const w = canvas.width;
     const maxWidth = w * (tall ? 0.84 : 0.66);
@@ -151,33 +168,37 @@ function createRenderer(canvas) {
     const startDesignSize = tall ? 66 : 84;
     const gap = 14 * sc;
 
-    // الترجمة تُحسب فقط مرة واحدة لكل آية (مع الجزء الأخير في وضع الأسطر
-    // المتعددة، أو مع النص الثابت كاملاً)، ضمن المساحة المتبقية تحت نص
-    // الآية العربي — لا تدفعه خارج المنطقة الآمنة أبدًا
-    function buildTranslation(arabicLineHeight) {
-      if (!translation) return null;
+    // الترجمة تُحسب ضمن المساحة المتبقية تحت نص الآية العربي دائمًا —
+    // لا تدفعه خارج المنطقة الآمنة أبدًا
+    function buildTranslation(arabicLineHeight, translationText) {
+      if (!translationText) return null;
       const remaining = Math.max(0, maxHeight - arabicLineHeight - gap);
-      return fitTranslationText(translation, maxWidth, remaining, sc, tall);
+      return fitTranslationText(translationText, maxWidth, remaining, sc, tall);
     }
 
     const fitted = fitAyahText(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
     if (fitted && fitted.lines.length <= 1) {
-      return { mode: 'fixed', ...fitted, translation: buildTranslation(fitted.lineHeight) };
+      return { mode: 'fixed', ...fitted, translation: buildTranslation(fitted.lineHeight, translation) };
     }
 
     const { fontSize, lineHeight, lines } = fitSingleLineFont(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
-    const lastLineTranslation = buildTranslation(lineHeight);
 
     const duration = timing.endTime - timing.startTime;
     const totalChars = lines.reduce((sum, l) => sum + l.length, 0) || 1;
+    const shares = lines.map(l => l.length / totalChars);
+    // كل جزء من الترجمة يُقسّم بنفس نسبة السطر العربي المقابل له (تقريب
+    // بحصّة الكلمات، لا محاذاة حرفية — راجع تعليق splitTranslationByShares)
+    const translationSegments = translation ? splitTranslationByShares(translation, shares) : null;
+
     let cursor = timing.startTime;
     const chunks = lines.map((line, idx) => {
-      const share = line.length / totalChars;
+      const share = shares[idx];
       const isLast = idx === lines.length - 1;
       const startTime = cursor;
       const endTime = isLast ? timing.endTime : cursor + duration * share;
       cursor = endTime;
-      return { startTime, endTime, fontSize, lineHeight, lines: [line], translation: isLast ? lastLineTranslation : null };
+      const segmentTranslation = translationSegments ? buildTranslation(lineHeight, translationSegments[idx]) : null;
+      return { startTime, endTime, fontSize, lineHeight, lines: [line], translation: segmentTranslation };
     });
 
     return { mode: 'chunks', chunks };
