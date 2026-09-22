@@ -30,6 +30,7 @@ const surahSelect = document.getElementById('surahSelect');
 const fromValueEl = document.getElementById('fromValue');
 const toValueEl = document.getElementById('toValue');
 const surahHintEl = document.getElementById('surahHint');
+const ayahDurationHintEl = document.getElementById('ayahDurationHint');
 const reciterSelectEl = document.getElementById('reciterSelect');
 const reciterHintEl = document.getElementById('reciterHint');
 
@@ -159,6 +160,53 @@ function updateAyahSteppers() {
   fromValueEl.value = String(state.fromAyah);
   toValueEl.value = String(state.toAyah);
   updateAyahProgressBar();
+  scheduleAyahDurationUpdate();
+}
+
+// عدّاد مدة دقيق (لا تقريبي) للنطاق [من–إلى] الحالي، يُحدَّث حيّة عند أي
+// تغيير. يعتمد على ayahDuration.js (رأس الملف الصوتي فقط عبر
+// preload="metadata")، مع ذاكرة مؤقتة لكل آية فلا تُعاد آية سبق قياسها.
+// requestId يضمن تجاهل استجابة قديمة إن وصلت بعد طلب أحدث (تغييرات سريعة).
+let ayahDurationRequestId = 0;
+
+function renderAyahDuration(totalSeconds) {
+  ayahDurationHintEl.textContent = `مدة المقطع: ${formatTime(totalSeconds)}`;
+  let kind = '';
+  if (totalSeconds > MAX_SECONDS) kind = 'err';
+  else if (totalSeconds >= MAX_SECONDS * 0.85) kind = 'warn';
+  ayahDurationHintEl.className = 'hint' + (kind ? ' ' + kind : '');
+}
+
+async function scheduleAyahDurationUpdate() {
+  const surah = state.selectedSurah;
+  const reciterId = state.selectedReciterId;
+  const myRequestId = ++ayahDurationRequestId;
+
+  if (!surah || !reciterId) {
+    ayahDurationHintEl.textContent = '';
+    ayahDurationHintEl.className = 'hint';
+    return;
+  }
+
+  ayahDurationHintEl.textContent = 'جارٍ حساب المدة...';
+  ayahDurationHintEl.className = 'hint';
+
+  try {
+    const reciter = RECITERS.find(r => r.id === reciterId);
+    const folder = await resolveReciterFolder(reciter);
+    if (myRequestId !== ayahDurationRequestId) return; // طلب أحدث تجاوز هذا
+
+    const total = await estimateAyahRangeDuration(
+      reciterId, folder, surah.number, state.fromAyah, state.toAyah
+    );
+    if (myRequestId !== ayahDurationRequestId) return;
+
+    renderAyahDuration(total);
+  } catch (err) {
+    if (myRequestId !== ayahDurationRequestId) return;
+    ayahDurationHintEl.textContent = 'تعذّر حساب المدة الدقيقة.';
+    ayahDurationHintEl.className = 'hint';
+  }
 }
 
 // شريط تقدّم بصري فوق سبنرز الآيات يعكس موضع النطاق [من–إلى] ضمن السورة
@@ -286,6 +334,7 @@ reciterSelectEl.addEventListener('change', () => {
   state.selectedReciterId = reciterSelectEl.value;
   const reciter = RECITERS.find(r => r.id === state.selectedReciterId);
   bylineReciterEl.textContent = reciter ? reciter.name : '—';
+  scheduleAyahDurationUpdate();
 });
 
 // ------- تبويب الخلفية -------
