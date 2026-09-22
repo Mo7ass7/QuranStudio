@@ -79,6 +79,12 @@ const previewAspectBadgeEl = document.getElementById('previewAspectBadge');
 const ayahProgressFillEl = document.getElementById('ayahProgressFill');
 const stepperNavEl = document.getElementById('stepperNav');
 
+const statRecitersEl = document.getElementById('statReciters');
+const statBackgroundsEl = document.getElementById('statBackgrounds');
+const ayahExampleCardEl = document.getElementById('ayahExampleCard');
+const ayahExampleTextEl = document.getElementById('ayahExampleText');
+const ayahExampleSourceEl = document.getElementById('ayahExampleSource');
+
 const renderer = createRenderer(canvas);
 
 // ------- أدوات مساعدة -------
@@ -378,6 +384,7 @@ function renderUploadedBgCard() {
 
 async function initBackgroundGrid() {
   state.backgroundManifest = await loadBackgroundManifest();
+  statBackgroundsEl.textContent = String(state.backgroundManifest.length);
 
   const noneCard = `
     <button type="button" class="bg-card bg-none selected" data-id="none">بدون خلفية<br>(أسود)</button>
@@ -734,9 +741,28 @@ btnExport.addEventListener('click', async () => {
   }
 });
 
+// يجلب آية عشوائية واحدة (نصًا فقط) لعرضها كمثال حي في قسم "نبذة عن
+// الموقع" أسفل الصفحة. مرة واحدة فقط عند تحميل الصفحة؛ فشل صامت (لا
+// يستحق إزعاج المستخدم بخطأ) إن تعذّر الجلب.
+async function loadRandomAyahExample() {
+  try {
+    const list = await getSurahList();
+    if (!list.length) return;
+    const surah = list[Math.floor(Math.random() * list.length)];
+    const ayahNumber = 1 + Math.floor(Math.random() * surah.ayahCount);
+    const [ayah] = await getAyahRangeText(surah.number, ayahNumber, ayahNumber, false);
+    ayahExampleTextEl.textContent = ayah.text;
+    ayahExampleSourceEl.textContent = `${surah.name} — آية ${ayahNumber}`;
+    ayahExampleCardEl.hidden = false;
+  } catch (err) {
+    console.error('تعذّر جلب آية عشوائية للعرض:', err);
+  }
+}
+
 // ------- التشغيل الأولي -------
 maxDurationHintEl.textContent = `الحد الأقصى: ${Math.round(MAX_SECONDS / 60)} دقائق لكل فيديو.`;
 watermarkInputEl.value = state.watermarkText;
+statRecitersEl.textContent = String(RECITERS.length);
 reportRecorderSupport();
 initReciterSelect();
 initSurahList();
@@ -745,3 +771,4 @@ initFontList();
 initCounterStyleList();
 initAspectRatioList();
 initQualityList();
+loadRandomAyahExample();
