@@ -29,7 +29,8 @@ const surahSelect = document.getElementById('surahSelect');
 const fromValueEl = document.getElementById('fromValue');
 const toValueEl = document.getElementById('toValue');
 const surahHintEl = document.getElementById('surahHint');
-const reciterGridEl = document.getElementById('reciterGrid');
+const reciterSelectEl = document.getElementById('reciterSelect');
+const reciterHintEl = document.getElementById('reciterHint');
 
 const bgGridEl = document.getElementById('bgGrid');
 const bgFileInput = document.getElementById('bgFileInput');
@@ -161,20 +162,15 @@ document.getElementById('toPlus').addEventListener('click', () => {
 });
 
 // ------- تبويب القارئ -------
-function initReciterGrid() {
-  reciterGridEl.innerHTML = RECITERS.map(r => `
-    <button type="button" class="reciter-card" data-id="${r.id}">
-      <span class="r-name">${r.name}</span>
-      <span class="r-country">${r.country}</span>
-    </button>
-  `).join('');
+function initReciterSelect() {
+  reciterSelectEl.innerHTML = RECITERS.map(r => `<option value="${r.id}">${r.name} — ${r.country}</option>`).join('');
+  state.selectedReciterId = RECITERS[0].id;
+  reciterSelectEl.value = state.selectedReciterId;
+  reciterHintEl.textContent = `${RECITERS.length} قارئًا متاحًا.`;
 }
 
-reciterGridEl.addEventListener('click', (e) => {
-  const card = e.target.closest('.reciter-card');
-  if (!card) return;
-  state.selectedReciterId = card.dataset.id;
-  document.querySelectorAll('.reciter-card').forEach(c => c.classList.toggle('selected', c === card));
+reciterSelectEl.addEventListener('change', () => {
+  state.selectedReciterId = reciterSelectEl.value;
 });
 
 // ------- تبويب الخلفية -------
@@ -478,8 +474,8 @@ btnReset.addEventListener('click', () => {
   clearError();
   setStatus('');
 
-  document.querySelectorAll('.reciter-card').forEach(c => c.classList.remove('selected'));
-  state.selectedReciterId = null;
+  state.selectedReciterId = RECITERS[0].id;
+  reciterSelectEl.value = state.selectedReciterId;
 
   state.selectedBackgroundId = 'none';
   state.uploadedBgFile = null;
@@ -559,7 +555,7 @@ btnExport.addEventListener('click', async () => {
 // ------- التشغيل الأولي -------
 watermarkInputEl.value = state.watermarkText;
 reportRecorderSupport();
-initReciterGrid();
+initReciterSelect();
 initSurahList();
 initBackgroundGrid();
 initFontList();

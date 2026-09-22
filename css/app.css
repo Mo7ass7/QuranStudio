@@ -185,36 +185,6 @@ button, input, select {
 
 .support-line b { color: var(--text); }
 
-/* شبكة القرّاء */
-.reciter-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.reciter-card {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 10px;
-  min-height: 44px;
-  text-align: center;
-  cursor: pointer;
-  color: var(--text);
-  font-family: inherit;
-}
-
-.reciter-card .r-name { display: block; font-size: 0.92rem; }
-.reciter-card .r-country { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
-
-.reciter-card.selected {
-  border-color: transparent;
-  background: var(--gold-soft);
-}
-
-.reciter-card.selected .r-name { color: var(--gold-ink); font-weight: 700; }
-.reciter-card.selected .r-country { color: var(--gold-ink); opacity: 0.75; }
-
 /* شبكة الخلفيات */
 .bg-grid {
   display: grid;

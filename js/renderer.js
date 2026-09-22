@@ -81,10 +81,28 @@ function createRenderer(canvas) {
   // حتى عند أصغر حجم (سلوك احتياطي محفوظ من مرحلة سابقة، لا وجود له في
   // النموذج التجريبي لأنه لم يختبر آيات طويلة) — أجزاء (~12 كلمة) تظهر
   // تباعًا بتوقيت نسبي لعدد الحروف
+
+  // المنطقة الآمنة الفعلية لنص الآية: بين أسفل الشارات وأعلى منطقة العداد
+  // (نحجز مساحة أكبر عداد ممكن، شكل الحلقة، بصرف النظر عن الشكل المختار
+  // فعليًا، فتبقى النتيجة آمنة أيًا كان). محسوبة من نفس القياسات المستخدمة
+  // في drawHeaderBadges/drawAyahCounter تمامًا، لا كنسب تخمينية منفصلة —
+  // هذا ما يضمن عدم تداخل النص مع الشارات أو العداد مهما طالت الآية أو
+  // اختلفت نسبة العرض (كانت المشكلة السابقة أن النسب كانت تقديرية فقط).
+  function ayahSafeZone(sc) {
+    const h = canvas.height;
+    const badgesBottom = (46 + 62 + 14 + 54) * sc;
+    const counterCy = isTall() ? h * 0.88 : h - 118 * sc;
+    const counterTopEstimate = counterCy - 70 * sc; // نصف قطر الحلقة (62sc) + هامش
+    const margin = 16 * sc;
+    const top = badgesBottom + margin;
+    const bottom = counterTopEstimate - margin;
+    return { center: (top + bottom) / 2, height: Math.max(sc * 40, bottom - top) };
+  }
+
   function prepareAyahLayout(text, timing, fontFamily, sc, tall) {
-    const w = canvas.width, h = canvas.height;
+    const w = canvas.width;
     const maxWidth = w * (tall ? 0.84 : 0.66);
-    const maxHeight = h * (tall ? 0.42 : 0.50);
+    const maxHeight = ayahSafeZone(sc).height;
     const startDesignSize = tall ? 66 : 84;
 
     const fitted = fitAyahText(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
@@ -213,8 +231,8 @@ function createRenderer(canvas) {
   function drawAyahText(layoutEntry, t, fontFamily, isLastAyah, sc) {
     if (!layoutEntry) return;
     const { layout, timing } = layoutEntry;
-    const w = canvas.width, h = canvas.height;
-    const cy = h * (isTall() ? 0.5 : 0.52);
+    const w = canvas.width;
+    const cy = ayahSafeZone(sc).center;
 
     let active = layout;
     if (layout.mode === 'chunks') {

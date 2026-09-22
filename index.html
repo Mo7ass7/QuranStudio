@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=8">
-<link rel="stylesheet" href="css/app.css?v=8">
+<link rel="stylesheet" href="fonts/fonts.css?v=9">
+<link rel="stylesheet" href="css/app.css?v=9">
 </head>
 <body>
   <header class="topbar">
@@ -52,8 +52,9 @@
 
     <!-- تبويب القارئ -->
     <section class="tab-panel" data-panel="reciter">
-      <label class="field-label">اختر القارئ</label>
-      <div class="reciter-grid" id="reciterGrid"></div>
+      <label class="field-label" for="reciterSelect">اختر القارئ</label>
+      <select id="reciterSelect" class="select"></select>
+      <p class="hint" id="reciterHint"></p>
     </section>
 
     <!-- تبويب الخلفية -->
@@ -157,15 +158,15 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=8"></script>
-  <script src="js/reciters.js?v=8"></script>
-  <script src="js/everyayahIndex.js?v=8"></script>
-  <script src="js/quranApi.js?v=8"></script>
-  <script src="js/audioEngine.js?v=8"></script>
-  <script src="js/backgroundManager.js?v=8"></script>
-  <script src="js/renderer.js?v=8"></script>
-  <script src="js/player.js?v=8"></script>
-  <script src="js/export.js?v=8"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/config.js?v=9"></script>
+  <script src="js/reciters.js?v=9"></script>
+  <script src="js/everyayahIndex.js?v=9"></script>
+  <script src="js/quranApi.js?v=9"></script>
+  <script src="js/audioEngine.js?v=9"></script>
+  <script src="js/backgroundManager.js?v=9"></script>
+  <script src="js/renderer.js?v=9"></script>
+  <script src="js/player.js?v=9"></script>
+  <script src="js/export.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>
