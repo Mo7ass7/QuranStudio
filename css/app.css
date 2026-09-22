@@ -176,9 +176,28 @@ button, input, select {
 }
 
 .stepper-value {
+  font-family: inherit;
   font-size: 1.1rem;
-  min-width: 2ch;
+  font-variant-numeric: tabular-nums;
+  width: 4ch;
+  min-width: 0;
   text-align: center;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 0;
+  -moz-appearance: textfield;
+}
+
+.stepper-value::-webkit-outer-spin-button,
+.stepper-value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper-value:focus {
+  outline: none;
+  color: var(--gold);
 }
 
 .hint {

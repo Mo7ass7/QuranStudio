@@ -110,8 +110,13 @@ accordionEl.addEventListener('click', (e) => {
 
 // ------- تبويب السورة -------
 function updateAyahSteppers() {
-  fromValueEl.textContent = String(state.fromAyah);
-  toValueEl.textContent = String(state.toAyah);
+  fromValueEl.value = String(state.fromAyah);
+  toValueEl.value = String(state.toAyah);
+}
+
+function clampAyahNumber(n) {
+  if (!state.selectedSurah || !Number.isFinite(n)) return 1;
+  return Math.min(state.selectedSurah.ayahCount, Math.max(1, Math.round(n)));
 }
 
 function setSurahByNumber(number) {
@@ -163,6 +168,24 @@ document.getElementById('toMinus').addEventListener('click', () => {
 document.getElementById('toPlus').addEventListener('click', () => {
   if (!state.selectedSurah) return;
   state.toAyah = Math.min(state.selectedSurah.ayahCount, state.toAyah + 1);
+  updateAyahSteppers();
+});
+
+// كتابة رقم الآية مباشرة بدل الاكتفاء بأزرار +/-
+fromValueEl.addEventListener('focus', () => fromValueEl.select());
+toValueEl.addEventListener('focus', () => toValueEl.select());
+
+fromValueEl.addEventListener('change', () => {
+  if (!state.selectedSurah) return;
+  state.fromAyah = clampAyahNumber(Number(fromValueEl.value));
+  if (state.fromAyah > state.toAyah) state.toAyah = state.fromAyah;
+  updateAyahSteppers();
+});
+
+toValueEl.addEventListener('change', () => {
+  if (!state.selectedSurah) return;
+  state.toAyah = clampAyahNumber(Number(toValueEl.value));
+  if (state.toAyah < state.fromAyah) state.fromAyah = state.toAyah;
   updateAyahSteppers();
 });
 
