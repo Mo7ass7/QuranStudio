@@ -15,6 +15,16 @@ function pickSupportedMimeType() {
   return null;
 }
 
+// معدل بت الفيديو الافتراضي في أغلب المتصفحات منخفض جدًا (~2.5 ميجابت/ثانية)
+// بغض النظر عن الدقة، فيظهر تكتّل/ضبابية واضحة خصوصًا مع خلفية فيديو متحركة.
+// نحسبه هنا صراحةً حسب الدقة الفعلية بدل ترك المتصفح يختار قيمة منخفضة.
+function computeVideoBitrate(canvas) {
+  const longEdge = Math.max(canvas.width, canvas.height);
+  if (longEdge >= 1920) return 8_000_000; // دقة كاملة: 1080×1920 أو 1920×1080
+  if (longEdge >= 1280) return 4_500_000; // جودة أقل: 720×1280 أو 1280×720
+  return 2_500_000; // احتياط لأي دقة أصغر مستقبلاً
+}
+
 // يسجّل المقطع كاملاً من البداية للنهاية: يشغّل الصوت المدمج ويرسم كل إطار
 // اعتمادًا على نفس دالة draw(t) المستخدمة في المعاينة، فيتطابق الفيديو
 // الناتج تمامًا مع ما يظهر أثناء المعاينة
@@ -23,6 +33,8 @@ async function exportVideo({ canvas, renderer, frameData, mergedBuffer, totalDur
   if (!mimeType) {
     throw new Error('المتصفح لا يدعم أي صيغة تسجيل مدعومة (mp4 أو webm). جرّب متصفحًا آخر (Chrome مثلاً).');
   }
+
+  const videoBitsPerSecond = computeVideoBitrate(canvas);
 
   const audioCtx = getAudioContext();
   const destination = audioCtx.createMediaStreamDestination();
@@ -38,7 +50,11 @@ async function exportVideo({ canvas, renderer, frameData, mergedBuffer, totalDur
     ...destination.stream.getAudioTracks(),
   ]);
 
-  const recorder = new MediaRecorder(combinedStream, { mimeType });
+  const recorder = new MediaRecorder(combinedStream, {
+    mimeType,
+    videoBitsPerSecond,
+    audioBitsPerSecond: 128_000,
+  });
   const chunks = [];
   recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
 
@@ -70,7 +86,17 @@ async function exportVideo({ canvas, renderer, frameData, mergedBuffer, totalDur
 
   await recordingDone;
 
-  return { blob: new Blob(chunks, { type: mimeType }), mimeType };
+  // بعض المتصفحات تعكس القيمة الفعلية التي اعتمدها المُرمِّز عبر هذه الخاصية،
+  // نستخدمها إن وُجدت وإلا نرجع القيمة التي طلبناها
+  const actualVideoBitsPerSecond = recorder.videoBitsPerSecond || videoBitsPerSecond;
+
+  return {
+    blob: new Blob(chunks, { type: mimeType }),
+    mimeType,
+    videoBitsPerSecond: actualVideoBitsPerSecond,
+    width: canvas.width,
+    height: canvas.height,
+  };
 }
 
 // يحاول مشاركة الملف عبر Web Share API (المعرض/التطبيقات)، وإلا رابط تحميل عادي

@@ -492,10 +492,11 @@ btnExport.addEventListener('click', async () => {
   btnExport.disabled = true;
   exportProgressWrapEl.hidden = false;
   exportProgressBarEl.style.width = '0%';
-  exportStatusEl.textContent = `جاري التصدير... يستغرق تقريبًا بقدر مدة المقطع (${formatTime(state.totalDuration)}).`;
+  exportStatusEl.textContent =
+    `جاري التصدير بدقة ${canvas.width}×${canvas.height}... يستغرق تقريبًا بقدر مدة المقطع (${formatTime(state.totalDuration)}).`;
 
   try {
-    const { blob, mimeType } = await exportVideo({
+    const { blob, mimeType, videoBitsPerSecond, width, height } = await exportVideo({
       canvas,
       renderer,
       frameData: state.frameData,
@@ -504,7 +505,9 @@ btnExport.addEventListener('click', async () => {
       onProgress: (ratio) => { exportProgressBarEl.style.width = `${Math.round(ratio * 100)}%`; },
     });
 
-    exportStatusEl.textContent = 'جاري الحفظ/المشاركة...';
+    const mbps = (videoBitsPerSecond / 1_000_000).toFixed(1);
+    console.log(`تصدير: الدقة الفعلية ${width}×${height}، معدل بت الفيديو ${mbps} ميجابت/ثانية`);
+    exportStatusEl.textContent = `جاري الحفظ/المشاركة... (${width}×${height}, ${mbps} ميجابت/ث)`;
     const fileNameBase = `quranstudio-${state.selectedSurah.number}-${state.fromAyah}-${state.toAyah}`;
     const result = await saveOrShareBlob(blob, mimeType, fileNameBase);
 
