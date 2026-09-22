@@ -85,6 +85,10 @@ function showError(message) {
   errorCardEl.hidden = false;
   errorMsgEl.textContent = message;
   console.error(message);
+  // نمرّر الصفحة إلى بطاقة الخطأ تلقائيًا كي لا تضيع أسفل الصفحة الطويلة
+  if (typeof errorCardEl.scrollIntoView === 'function') {
+    errorCardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 function clearError() {

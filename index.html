@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=16">
-<link rel="stylesheet" href="css/app.css?v=16">
+<link rel="stylesheet" href="fonts/fonts.css?v=17">
+<link rel="stylesheet" href="css/app.css?v=17">
 </head>
 <body>
   <header class="topbar">
@@ -147,8 +147,11 @@
     <div id="generateStatus" class="status"></div>
 
     <div id="errorCard" class="card error-card" hidden>
-      <h2>⚠️ حدث خطأ</h2>
-      <p id="errorMsg"></p>
+      <svg class="error-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 1 21h22L12 2zm0 6.2a1.2 1.2 0 0 1 1.2 1.2v5.1a1.2 1.2 0 1 1-2.4 0V9.4A1.2 1.2 0 0 1 12 8.2zm0 9.9a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"/></svg>
+      <div class="error-body">
+        <h2>حدث خطأ</h2>
+        <p id="errorMsg"></p>
+      </div>
     </div>
 
     <div id="exportProgressWrap" class="export-progress-wrap" hidden>
@@ -174,15 +177,15 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=16"></script>
-  <script src="js/reciters.js?v=16"></script>
-  <script src="js/everyayahIndex.js?v=16"></script>
-  <script src="js/quranApi.js?v=16"></script>
-  <script src="js/audioEngine.js?v=16"></script>
-  <script src="js/backgroundManager.js?v=16"></script>
-  <script src="js/renderer.js?v=16"></script>
-  <script src="js/player.js?v=16"></script>
-  <script src="js/export.js?v=16"></script>
-  <script src="js/app.js?v=16"></script>
+  <script src="js/config.js?v=17"></script>
+  <script src="js/reciters.js?v=17"></script>
+  <script src="js/everyayahIndex.js?v=17"></script>
+  <script src="js/quranApi.js?v=17"></script>
+  <script src="js/audioEngine.js?v=17"></script>
+  <script src="js/backgroundManager.js?v=17"></script>
+  <script src="js/renderer.js?v=17"></script>
+  <script src="js/player.js?v=17"></script>
+  <script src="js/export.js?v=17"></script>
+  <script src="js/app.js?v=17"></script>
 </body>
 </html>

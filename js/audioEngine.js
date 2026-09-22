@@ -33,9 +33,11 @@ async function buildAyahTimeline(reciterFolder, surahNumber, fromAyah, toAyah, o
 
     runningTotal += decoded.duration;
     if (runningTotal > MAX_SECONDS) {
+      const maxMinutes = Math.round(MAX_SECONDS / 60);
       throw new Error(
-        `مدة المقطع (${Math.ceil(runningTotal)} ثانية حتى الآية ${ayahNumber}) تتجاوز الحد الأقصى ` +
-        `(${MAX_SECONDS} ثانية). قلّل عدد الآيات المختارة وحاول مجددًا.`
+        `يجب ألا يتجاوز طول الفيديو ${maxMinutes} دقائق لكل مقطع. مدة النطاق المختار ` +
+        `(${Math.ceil(runningTotal)} ثانية حتى الآية ${ayahNumber}) تجاوزت الحد الأقصى (${MAX_SECONDS} ثانية). ` +
+        `قلّل عدد الآيات المختارة وحاول مجددًا.`
       );
     }
 
