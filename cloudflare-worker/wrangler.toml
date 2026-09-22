@@ -1,0 +1,27 @@
+# QuranStudio — إعداد نشر وسيط CORS + الإحصائيات (everyayah-proxy.js) كـ
+# Cloudflare Worker منفصل عن الموقع نفسه (الموقع مستضاف على GitHub Pages).
+#
+# ملاحظة مهمة: إن كنت تدير هذا الـ Worker حاليًا عبر لوحة Cloudflare مباشرة
+# (لصق الكود في محرّر الويب بدل npx wrangler deploy)، فهذا الملف لا يُقرأ
+# تلقائيًا في تلك الحالة — بدّل ربط KV وكلمة السر من تبويب Settings في لوحة
+# الـ Worker نفسه بدل هذا الملف. راجع خطوات لوحة Cloudflare المرفقة في رسالة
+# Claude لهذا التحديث.
+#
+# النشر من حسابك (يتطلب مصادقة لا أملكها من بيئتي):
+#   cd cloudflare-worker
+#   npx wrangler login
+#   npx wrangler deploy
+
+name = "quranstudio-proxy"
+main = "everyayah-proxy.js"
+compatibility_date = "2024-09-25"
+
+# ربط KV باسم STATS — استبدل id بمعرّف الـ Namespace الحقيقي بعد إنشائه من
+# لوحة Cloudflare (Workers & Pages → KV → Create a namespace)
+[[kv_namespaces]]
+binding = "STATS"
+id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE"
+
+# ADMIN_PASSWORD سرّي، لا يُكتب هنا أبدًا — يُضبط فقط عبر:
+#   npx wrangler secret put ADMIN_PASSWORD
+# أو من لوحة Cloudflare: Settings → Variables and Secrets → Add → Secret
