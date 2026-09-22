@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=9">
-<link rel="stylesheet" href="css/app.css?v=9">
+<link rel="stylesheet" href="fonts/fonts.css?v=10">
+<link rel="stylesheet" href="css/app.css?v=10">
 </head>
 <body>
   <header class="topbar">
@@ -15,101 +15,13 @@
 
   <main class="wrap">
 
-    <!-- التبويبات -->
-    <nav class="tabs" id="tabs">
-      <button class="tab-btn active" data-tab="surah">السورة</button>
-      <button class="tab-btn" data-tab="reciter">القارئ</button>
-      <button class="tab-btn" data-tab="background">الخلفية</button>
-      <button class="tab-btn" data-tab="font">الخط</button>
-      <button class="tab-btn" data-tab="display">العرض</button>
-    </nav>
-
-    <!-- تبويب السورة -->
-    <section class="tab-panel active" data-panel="surah">
-      <label class="field-label" for="surahSelect">السورة</label>
-      <select id="surahSelect" class="select"></select>
-
-      <div class="ayah-range">
-        <div class="ayah-stepper">
-          <span class="field-label">من آية</span>
-          <div class="stepper">
-            <button type="button" class="stepper-btn" id="fromMinus">−</button>
-            <span id="fromValue" class="stepper-value">1</span>
-            <button type="button" class="stepper-btn" id="fromPlus">+</button>
-          </div>
-        </div>
-        <div class="ayah-stepper">
-          <span class="field-label">إلى آية</span>
-          <div class="stepper">
-            <button type="button" class="stepper-btn" id="toMinus">−</button>
-            <span id="toValue" class="stepper-value">1</span>
-            <button type="button" class="stepper-btn" id="toPlus">+</button>
-          </div>
-        </div>
+    <!-- إطار المعاينة: مباشرة تحت العنوان الفرعي -->
+    <div class="frame-wrap" id="frameWrap">
+      <canvas id="previewCanvas" width="1080" height="1920" hidden></canvas>
+      <div class="frame-placeholder" id="framePlaceholder">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 6a2 2 0 0 1 2-2h8l6 6v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm10.5 4.5L11 12l3.5 1.5v-3z"/></svg>
+        <p>اختر السورة والقارئ ثم اضغط «أنشئ المعاينة» أسفل الصفحة لعرضها هنا</p>
       </div>
-      <p class="hint" id="surahHint"></p>
-    </section>
-
-    <!-- تبويب القارئ -->
-    <section class="tab-panel" data-panel="reciter">
-      <label class="field-label" for="reciterSelect">اختر القارئ</label>
-      <select id="reciterSelect" class="select"></select>
-      <p class="hint" id="reciterHint"></p>
-    </section>
-
-    <!-- تبويب الخلفية -->
-    <section class="tab-panel" data-panel="background">
-      <div class="bg-top">
-        <label class="field-label" style="margin:0;">اختر الخلفية</label>
-        <button type="button" id="btnUploadBg" class="upload-btn">
-          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5zM11 16h2V8.8l2.6 2.6L17 10l-5-5-5 5 1.4 1.4L11 8.8z"/></svg>
-          <span>رفع من الجهاز</span>
-        </button>
-        <input type="file" id="bgFileInput" accept="image/*,video/*" hidden>
-      </div>
-      <div class="bg-grid" id="bgGrid"></div>
-      <p class="hint" id="bgHint"></p>
-    </section>
-
-    <!-- تبويب الخط -->
-    <section class="tab-panel" data-panel="font">
-      <label class="field-label">اختر الخط</label>
-      <div class="font-list" id="fontList"></div>
-    </section>
-
-    <!-- تبويب العرض -->
-    <section class="tab-panel" data-panel="display">
-      <label class="toggle-row">
-        <span>إظهار اسم القارئ</span>
-        <input type="checkbox" id="toggleReciterName" checked>
-      </label>
-
-      <label class="field-label" style="margin-top:16px;">شكل عداد الآيات</label>
-      <div class="counter-style-list" id="counterStyleList"></div>
-
-      <label class="field-label" style="margin-top:16px;">نسبة العرض</label>
-      <div class="option-row" id="aspectRatioList"></div>
-
-      <label class="field-label" style="margin-top:16px;">الجودة</label>
-      <div class="option-row" id="qualityList"></div>
-
-      <label class="field-label" for="watermarkInput" style="margin-top:16px;">العلامة المائية (اسم موقعك)</label>
-      <input type="text" id="watermarkInput" class="select" maxlength="40">
-
-      <p class="hint support-line" id="recorderSupport"></p>
-    </section>
-
-    <!-- أزرار التحكم -->
-    <div class="actions-row">
-      <button id="btnGenerate" class="btn btn-primary">أنشئ المعاينة</button>
-      <button id="btnReset" class="btn btn-secondary">إعادة تعيين</button>
-    </div>
-
-    <div id="generateStatus" class="status"></div>
-
-    <!-- إطار المعاينة -->
-    <div class="frame-wrap" id="frameWrap" hidden>
-      <canvas id="previewCanvas" width="1080" height="1920"></canvas>
     </div>
 
     <!-- عناصر المشغّل (خارج الـ Canvas تمامًا) -->
@@ -137,36 +49,135 @@
       </div>
     </div>
 
-    <!-- التصدير -->
-    <button id="btnExport" class="btn btn-export" hidden>
-      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z"/></svg>
-      <span>تحميل / حفظ في المعرض</span>
-    </button>
-    <div id="exportProgressWrap" class="export-progress-wrap" hidden>
-      <div class="export-progress-track"><div id="exportProgressBar" class="export-progress-bar"></div></div>
-      <p id="exportStatus" class="status"></p>
+    <!-- الإعدادات: قائمة قابلة للطي (أكورديون) -->
+    <div class="accordion" id="settingsAccordion">
+
+      <div class="acc-item open" data-acc="surah">
+        <button type="button" class="acc-head"><span class="acc-lbl"><span class="acc-num">١</span>السورة</span><svg class="acc-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg></button>
+        <div class="acc-body">
+          <label class="field-label" for="surahSelect">السورة</label>
+          <select id="surahSelect" class="select"></select>
+
+          <div class="ayah-range">
+            <div class="ayah-stepper">
+              <span class="field-label">من آية</span>
+              <div class="stepper">
+                <button type="button" class="stepper-btn" id="fromMinus">−</button>
+                <span id="fromValue" class="stepper-value">1</span>
+                <button type="button" class="stepper-btn" id="fromPlus">+</button>
+              </div>
+            </div>
+            <div class="ayah-stepper">
+              <span class="field-label">إلى آية</span>
+              <div class="stepper">
+                <button type="button" class="stepper-btn" id="toMinus">−</button>
+                <span id="toValue" class="stepper-value">1</span>
+                <button type="button" class="stepper-btn" id="toPlus">+</button>
+              </div>
+            </div>
+          </div>
+          <p class="hint" id="surahHint"></p>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc="reciter">
+        <button type="button" class="acc-head"><span class="acc-lbl"><span class="acc-num">٢</span>القارئ</span><svg class="acc-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg></button>
+        <div class="acc-body" hidden>
+          <label class="field-label" for="reciterSelect">اختر القارئ</label>
+          <select id="reciterSelect" class="select"></select>
+          <p class="hint" id="reciterHint"></p>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc="background">
+        <button type="button" class="acc-head"><span class="acc-lbl"><span class="acc-num">٣</span>الخلفية</span><svg class="acc-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg></button>
+        <div class="acc-body" hidden>
+          <div class="bg-top">
+            <label class="field-label" style="margin:0;">اختر الخلفية</label>
+            <button type="button" id="btnUploadBg" class="upload-btn">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5zM11 16h2V8.8l2.6 2.6L17 10l-5-5-5 5 1.4 1.4L11 8.8z"/></svg>
+              <span>رفع من الجهاز</span>
+            </button>
+            <input type="file" id="bgFileInput" accept="image/*,video/*" hidden>
+          </div>
+          <div class="bg-grid" id="bgGrid"></div>
+          <p class="hint" id="bgHint"></p>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc="font">
+        <button type="button" class="acc-head"><span class="acc-lbl"><span class="acc-num">٤</span>الخط</span><svg class="acc-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg></button>
+        <div class="acc-body" hidden>
+          <label class="field-label">اختر الخط</label>
+          <div class="font-list" id="fontList"></div>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc="display">
+        <button type="button" class="acc-head"><span class="acc-lbl"><span class="acc-num">٥</span>العرض</span><svg class="acc-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg></button>
+        <div class="acc-body" hidden>
+          <label class="toggle-row">
+            <span>إظهار اسم القارئ</span>
+            <input type="checkbox" id="toggleReciterName" checked>
+          </label>
+
+          <label class="field-label" style="margin-top:16px;">شكل عداد الآيات</label>
+          <div class="counter-style-list" id="counterStyleList"></div>
+
+          <label class="field-label" style="margin-top:16px;">نسبة العرض</label>
+          <div class="option-row" id="aspectRatioList"></div>
+
+          <label class="field-label" style="margin-top:16px;">الجودة</label>
+          <div class="option-row" id="qualityList"></div>
+
+          <label class="field-label" for="watermarkInput" style="margin-top:16px;">العلامة المائية (اسم موقعك)</label>
+          <input type="text" id="watermarkInput" class="select" maxlength="40">
+
+          <p class="hint support-line" id="recorderSupport"></p>
+        </div>
+      </div>
+
     </div>
+
+    <div id="generateStatus" class="status"></div>
 
     <div id="errorCard" class="card error-card" hidden>
       <h2>⚠️ حدث خطأ</h2>
       <p id="errorMsg"></p>
     </div>
 
+    <div id="exportProgressWrap" class="export-progress-wrap" hidden>
+      <div class="export-progress-track"><div id="exportProgressBar" class="export-progress-bar"></div></div>
+      <p id="exportStatus" class="status"></p>
+    </div>
+
   </main>
+
+  <!-- شريط الإجراءات الثابت أسفل الشاشة -->
+  <div class="sticky-actions" id="stickyActions">
+    <div class="actions-row">
+      <button id="btnGenerate" class="btn btn-primary">أنشئ المعاينة</button>
+      <button id="btnReset" class="btn btn-secondary">إعادة تعيين</button>
+    </div>
+    <button id="btnExport" class="btn btn-export" hidden>
+      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z"/></svg>
+      <span>تحميل / حفظ في المعرض</span>
+    </button>
+  </div>
 
   <footer class="foot">
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=9"></script>
-  <script src="js/reciters.js?v=9"></script>
-  <script src="js/everyayahIndex.js?v=9"></script>
-  <script src="js/quranApi.js?v=9"></script>
-  <script src="js/audioEngine.js?v=9"></script>
-  <script src="js/backgroundManager.js?v=9"></script>
-  <script src="js/renderer.js?v=9"></script>
-  <script src="js/player.js?v=9"></script>
-  <script src="js/export.js?v=9"></script>
-  <script src="js/app.js?v=9"></script>
+  <script src="js/config.js?v=10"></script>
+  <script src="js/reciters.js?v=10"></script>
+  <script src="js/everyayahIndex.js?v=10"></script>
+  <script src="js/quranApi.js?v=10"></script>
+  <script src="js/audioEngine.js?v=10"></script>
+  <script src="js/backgroundManager.js?v=10"></script>
+  <script src="js/renderer.js?v=10"></script>
+  <script src="js/player.js?v=10"></script>
+  <script src="js/export.js?v=10"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>

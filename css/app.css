@@ -68,53 +68,64 @@ button, input, select {
   max-width: 640px;
   margin: 0 auto;
   padding: 16px;
+  padding-bottom: 110px; /* مساحة لشريط الإجراءات الثابت أسفل الشاشة */
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-/* التبويبات: شريط واحد segmented control */
-.tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--surface2);
-  border-radius: 14px;
-  padding: 4px;
-  overflow-x: auto;
-}
+.actions-row { display: flex; gap: 10px; }
 
-.tab-btn {
-  flex: 1 1 0;
-  min-width: max-content;
-  min-height: 44px;
-  background: transparent;
-  color: var(--muted);
-  border: none;
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 0.88rem;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.tab-btn.active {
-  color: var(--gold-ink);
-  background: var(--gold-soft);
-  font-weight: 700;
-}
-
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-.tab-panel, .actions-row {
+/* الإعدادات: قائمة قابلة للطي (أكورديون) */
+.accordion {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 16px;
+  overflow: hidden;
 }
 
-.actions-row { display: flex; gap: 10px; background: transparent; border: none; padding: 0; }
+.acc-item + .acc-item { border-top: 1px solid var(--border); }
+
+.acc-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  min-height: 52px;
+  padding: 10px 16px;
+  cursor: pointer;
+  text-align: right;
+}
+
+.acc-lbl { display: flex; align-items: center; gap: 10px; }
+
+.acc-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--gold);
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.acc-item.open .acc-num { background: var(--gold-soft); color: var(--gold-ink); }
+
+.acc-chevron { width: 16px; height: 16px; flex: none; color: var(--muted); transition: transform 0.18s ease; }
+.acc-item.open .acc-chevron { transform: rotate(180deg); color: var(--gold); }
+
+.acc-body { padding: 0 16px 18px; }
 
 .field-label {
   display: block;
@@ -424,6 +435,7 @@ button, input, select {
 
 /* إطار المعاينة */
 .frame-wrap {
+  position: relative;
   width: 100%;
   max-width: 380px;
   margin: 0 auto;
@@ -442,6 +454,24 @@ button, input, select {
   height: 100%;
   display: block;
 }
+
+.frame-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px;
+  color: var(--muted);
+  background: linear-gradient(160deg, var(--surface2), #000 140%);
+}
+
+.frame-placeholder[hidden] { display: none; }
+.frame-placeholder svg { width: 34px; height: 34px; color: var(--gold-soft); opacity: 0.8; }
+.frame-placeholder p { margin: 0; font-size: 0.85rem; line-height: 1.7; max-width: 26ch; }
 
 /* عناصر المشغّل */
 .player-controls {
@@ -546,6 +576,22 @@ button, input, select {
   color: var(--muted);
   font-size: 0.75rem;
   padding: 20px;
+  padding-bottom: 90px; /* فوق شريط الإجراءات الثابت */
 }
 
 .foot a { color: var(--gold); }
+
+/* شريط الإجراءات الثابت أسفل الشاشة */
+.sticky-actions {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+  margin-inline: auto;
+  padding: 18px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, var(--bg) 30%, var(--bg));
+}

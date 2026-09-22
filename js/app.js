@@ -24,7 +24,7 @@ const state = {
 };
 
 // ------- عناصر DOM -------
-const tabsEl = document.getElementById('tabs');
+const accordionEl = document.getElementById('settingsAccordion');
 const surahSelect = document.getElementById('surahSelect');
 const fromValueEl = document.getElementById('fromValue');
 const toValueEl = document.getElementById('toValue');
@@ -50,6 +50,7 @@ const btnReset = document.getElementById('btnReset');
 const generateStatusEl = document.getElementById('generateStatus');
 
 const frameWrapEl = document.getElementById('frameWrap');
+const framePlaceholderEl = document.getElementById('framePlaceholder');
 const canvas = document.getElementById('previewCanvas');
 const playerControlsEl = document.getElementById('playerControls');
 const seekBarEl = document.getElementById('seekBar');
@@ -94,13 +95,17 @@ function setStatus(text, kind) {
   generateStatusEl.className = 'status' + (kind ? ' ' + kind : '');
 }
 
-// ------- التبويبات -------
-tabsEl.addEventListener('click', (e) => {
-  const btn = e.target.closest('.tab-btn');
-  if (!btn) return;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
-  const tab = btn.dataset.tab;
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tab));
+// ------- الإعدادات: أكورديون (قسم واحد مفتوح في كل مرة) -------
+accordionEl.addEventListener('click', (e) => {
+  const head = e.target.closest('.acc-head');
+  if (!head) return;
+  const item = head.closest('.acc-item');
+  const willOpen = !item.classList.contains('open');
+  accordionEl.querySelectorAll('.acc-item').forEach((it) => {
+    const open = willOpen && it === item;
+    it.classList.toggle('open', open);
+    it.querySelector('.acc-body').hidden = !open;
+  });
 });
 
 // ------- تبويب السورة -------
@@ -441,7 +446,8 @@ btnGenerate.addEventListener('click', async () => {
     timeCurrentEl.textContent = '0:00';
     seekBarEl.value = '0';
 
-    frameWrapEl.hidden = false;
+    framePlaceholderEl.hidden = true;
+    canvas.hidden = false;
     playerControlsEl.hidden = false;
     btnExport.hidden = false;
     renderer.draw(0, state.frameData);
@@ -465,7 +471,8 @@ btnReset.addEventListener('click', () => {
   state.mergedBuffer = null;
   state.totalDuration = 0;
 
-  frameWrapEl.hidden = true;
+  framePlaceholderEl.hidden = false;
+  canvas.hidden = true;
   playerControlsEl.hidden = true;
   btnExport.hidden = true;
   exportProgressWrapEl.hidden = true;
@@ -507,6 +514,12 @@ btnReset.addEventListener('click', () => {
 
   if (state.surahList.length) setSurahByNumber(state.surahList[0].number);
   surahSelect.value = state.surahList[0] ? String(state.surahList[0].number) : '';
+
+  accordionEl.querySelectorAll('.acc-item').forEach((it) => {
+    const open = it.dataset.acc === 'surah';
+    it.classList.toggle('open', open);
+    it.querySelector('.acc-body').hidden = !open;
+  });
 });
 
 // ------- التصدير -------
