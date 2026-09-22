@@ -53,6 +53,7 @@ const generateStatusEl = document.getElementById('generateStatus');
 
 const frameWrapEl = document.getElementById('frameWrap');
 const framePlaceholderEl = document.getElementById('framePlaceholder');
+const maxDurationHintEl = document.getElementById('maxDurationHint');
 const canvas = document.getElementById('previewCanvas');
 const playerControlsEl = document.getElementById('playerControls');
 const seekBarEl = document.getElementById('seekBar');
@@ -626,6 +627,7 @@ btnExport.addEventListener('click', async () => {
 });
 
 // ------- التشغيل الأولي -------
+maxDurationHintEl.textContent = `الحد الأقصى: ${Math.round(MAX_SECONDS / 60)} دقائق لكل فيديو.`;
 watermarkInputEl.value = state.watermarkText;
 reportRecorderSupport();
 initReciterSelect();

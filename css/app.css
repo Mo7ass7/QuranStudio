@@ -207,6 +207,11 @@ button, input, select {
   margin: 10px 0 0;
 }
 
+.duration-hint {
+  text-align: center;
+  margin: -4px 0 0;
+}
+
 .support-line {
   padding: 10px 12px;
   border: 1px dashed var(--border);
