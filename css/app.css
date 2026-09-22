@@ -698,22 +698,29 @@ button, input, select {
 
 .transport-btn-icon { flex: 0 0 44px; padding: 0; }
 
-/* التصدير */
-.export-progress-wrap { max-width: 380px; margin: 0 auto; width: 100%; }
-
-.export-progress-track {
-  width: 100%;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--surface2);
+/* التصدير: شريط التقدّم مدمج داخل زر "تحميل / حفظ في المعرض" نفسه —
+   طبقة تعبئة شفافة تكبر من 0% إلى 100% خلف نص/أيقونة الزر */
+.btn-export {
+  position: relative;
   overflow: hidden;
 }
 
-.export-progress-bar {
-  height: 100%;
+.btn-export-fill {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
   width: 0%;
-  background: var(--gold-soft);
-  transition: width 0.1s linear;
+  background: rgba(255, 255, 255, 0.22);
+  transition: width 0.15s linear;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.btn-export svg,
+.btn-export-label {
+  position: relative;
+  z-index: 1;
 }
 
 /* بطاقة الخطأ — بارزة عمدًا (لون مشبع، إطار سميك، حركة دخول لافتة) كي لا

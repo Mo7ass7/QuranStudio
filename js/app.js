@@ -66,9 +66,9 @@ const btnFwd5 = document.getElementById('btnFwd5');
 const btnRestart = document.getElementById('btnRestart');
 
 const btnExport = document.getElementById('btnExport');
-const exportProgressWrapEl = document.getElementById('exportProgressWrap');
-const exportProgressBarEl = document.getElementById('exportProgressBar');
-const exportStatusEl = document.getElementById('exportStatus');
+const btnExportFillEl = document.getElementById('btnExportFill');
+const btnExportLabelEl = document.getElementById('btnExportLabel');
+const EXPORT_DEFAULT_LABEL = 'تحميل / حفظ في المعرض';
 
 const errorCardEl = document.getElementById('errorCard');
 const errorMsgEl = document.getElementById('errorMsg');
@@ -646,8 +646,7 @@ btnReset.addEventListener('click', () => {
   canvas.hidden = true;
   playerControlsEl.hidden = true;
   btnExport.hidden = true;
-  exportProgressWrapEl.hidden = true;
-  exportProgressBarEl.style.width = '0%';
+  resetExportButton();
 
   clearError();
   setStatus('');
@@ -698,17 +697,32 @@ btnReset.addEventListener('click', () => {
   });
 });
 
-// ------- التصدير -------
+// ------- التصدير: شريط التقدّم داخل الزر نفسه (لا عنصر منفصل) -------
+let exportRevertTimer = null;
+
+function setExportButtonProgress(percent) {
+  btnExportFillEl.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+}
+
+function setExportButtonLabel(text) {
+  btnExportLabelEl.textContent = text;
+}
+
+function resetExportButton() {
+  clearTimeout(exportRevertTimer);
+  setExportButtonProgress(0);
+  setExportButtonLabel(EXPORT_DEFAULT_LABEL);
+}
+
 btnExport.addEventListener('click', async () => {
   if (!state.frameData || !state.mergedBuffer) return;
 
   player.pause();
   clearError();
+  clearTimeout(exportRevertTimer);
   btnExport.disabled = true;
-  exportProgressWrapEl.hidden = false;
-  exportProgressBarEl.style.width = '0%';
-  exportStatusEl.textContent =
-    `جاري التصدير بدقة ${canvas.width}×${canvas.height}... يستغرق تقريبًا بقدر مدة المقطع (${formatTime(state.totalDuration)}).`;
+  setExportButtonProgress(0);
+  setExportButtonLabel('جاري التصدير... 0%');
 
   try {
     const { blob, mimeType, videoBitsPerSecond, width, height } = await exportVideo({
@@ -717,24 +731,31 @@ btnExport.addEventListener('click', async () => {
       frameData: state.frameData,
       mergedBuffer: state.mergedBuffer,
       totalDuration: state.totalDuration,
-      onProgress: (ratio) => { exportProgressBarEl.style.width = `${Math.round(ratio * 100)}%`; },
+      onProgress: (ratio) => {
+        const percent = Math.round(ratio * 100);
+        setExportButtonProgress(percent);
+        setExportButtonLabel(`جاري التصدير... ${percent}%`);
+      },
     });
 
     const mbps = (videoBitsPerSecond / 1_000_000).toFixed(1);
     console.log(`تصدير: الدقة الفعلية ${width}×${height}، معدل بت الفيديو ${mbps} ميجابت/ثانية`);
-    exportStatusEl.textContent = `جاري الحفظ/المشاركة... (${width}×${height}, ${mbps} ميجابت/ث)`;
+    setExportButtonProgress(100);
+    setExportButtonLabel('جاري الحفظ/المشاركة...');
     const fileNameBase = `quranstudio-${state.selectedSurah.number}-${state.fromAyah}-${state.toAyah}`;
     const result = await saveOrShareBlob(blob, mimeType, fileNameBase);
 
-    exportStatusEl.textContent = result.method === 'share'
-      ? 'تمت المشاركة/الحفظ بنجاح.'
+    setExportButtonLabel(result.method === 'share'
+      ? 'تمت المشاركة/الحفظ بنجاح'
       : result.method === 'cancelled'
-        ? 'تم إلغاء المشاركة.'
-        : 'تم تنزيل الملف بنجاح.';
+        ? 'تم إلغاء المشاركة'
+        : 'تم تنزيل الملف بنجاح');
 
     renderer.draw(player.currentTime(), state.frameData);
+    // يعود الزر لحالته الافتراضية بعد لحظة كي يقرأ المستخدم رسالة النجاح
+    exportRevertTimer = setTimeout(resetExportButton, 2500);
   } catch (err) {
-    exportStatusEl.textContent = 'فشل التصدير.';
+    resetExportButton();
     showError(err.message || String(err));
   } finally {
     btnExport.disabled = false;

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=21">
-<link rel="stylesheet" href="css/app.css?v=21">
+<link rel="stylesheet" href="fonts/fonts.css?v=22">
+<link rel="stylesheet" href="css/app.css?v=22">
 </head>
 <body>
   <header class="topbar">
@@ -184,11 +184,6 @@
       </div>
     </div>
 
-    <div id="exportProgressWrap" class="export-progress-wrap" hidden>
-      <div class="export-progress-track"><div id="exportProgressBar" class="export-progress-bar"></div></div>
-      <p id="exportStatus" class="status"></p>
-    </div>
-
   </main>
 
   <!-- نبذة عن الموقع + الأسئلة الشائعة — خارج بطاقة الإعدادات، أسفل الصفحة -->
@@ -293,8 +288,9 @@
       <button id="btnReset" class="btn btn-secondary">إعادة تعيين</button>
     </div>
     <button id="btnExport" class="btn btn-export" hidden>
+      <span class="btn-export-fill" id="btnExportFill"></span>
       <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z"/></svg>
-      <span>تحميل / حفظ في المعرض</span>
+      <span class="btn-export-label" id="btnExportLabel">تحميل / حفظ في المعرض</span>
     </button>
   </div>
 
@@ -302,16 +298,16 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=21"></script>
-  <script src="js/reciters.js?v=21"></script>
-  <script src="js/everyayahIndex.js?v=21"></script>
-  <script src="js/ayahDuration.js?v=21"></script>
-  <script src="js/quranApi.js?v=21"></script>
-  <script src="js/audioEngine.js?v=21"></script>
-  <script src="js/backgroundManager.js?v=21"></script>
-  <script src="js/renderer.js?v=21"></script>
-  <script src="js/player.js?v=21"></script>
-  <script src="js/export.js?v=21"></script>
-  <script src="js/app.js?v=21"></script>
+  <script src="js/config.js?v=22"></script>
+  <script src="js/reciters.js?v=22"></script>
+  <script src="js/everyayahIndex.js?v=22"></script>
+  <script src="js/ayahDuration.js?v=22"></script>
+  <script src="js/quranApi.js?v=22"></script>
+  <script src="js/audioEngine.js?v=22"></script>
+  <script src="js/backgroundManager.js?v=22"></script>
+  <script src="js/renderer.js?v=22"></script>
+  <script src="js/player.js?v=22"></script>
+  <script src="js/export.js?v=22"></script>
+  <script src="js/app.js?v=22"></script>
 </body>
 </html>
