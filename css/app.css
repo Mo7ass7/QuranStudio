@@ -337,6 +337,9 @@ button, input, select {
   margin: -4px 0 0;
 }
 
+.hint.warn { color: var(--gold); font-weight: 700; }
+.hint.err { color: var(--danger); font-weight: 700; }
+
 .support-line {
   padding: 10px 12px;
   border: 1px dashed var(--border);
