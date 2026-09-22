@@ -78,6 +78,62 @@ button, input, select {
 
 .actions-row { display: flex; gap: 10px; }
 
+/* بانر تثبيت PWA مخصّص — ثابت أعلى الشاشة (أسفل الشاشة محجوز أصلًا
+   بشريط الإجراءات الثابت)، بنفس بطاقات/ظلال/ألوان الموقع */
+.pwa-install-banner {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+.pwa-install-banner[hidden] { display: none; }
+
+.pwa-install-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: block;
+}
+
+.pwa-install-text { flex: 1; min-width: 0; }
+
+.pwa-install-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.pwa-install-sub {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.pwa-install-actions {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+.pwa-install-actions .btn {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 0.78rem;
+  border-radius: 10px;
+}
+
 /* بطاقة المعاينة: إطار الفيديو + شارة النسبة + سطر السورة/القارئ */
 .preview-card {
   background: var(--surface);
@@ -549,6 +605,8 @@ button, input, select {
   justify-content: center;
   gap: 8px;
 }
+
+.btn[hidden] { display: none; }
 
 .btn svg { width: 18px; height: 18px; flex: none; }
 
