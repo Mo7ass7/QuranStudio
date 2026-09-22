@@ -1,14 +1,34 @@
-/* QuranStudio — أنماط التطبيق الرئيسي (المرحلة 1) */
+/* QuranStudio — أنماط التطبيق الرئيسي
+   نظام الألوان: فاتح افتراضيًا في :root، وداكن تلقائيًا حسب إعداد الجهاز
+   (prefers-color-scheme). Cairo هو خط الواجهة العام؛ خط الآية المختار
+   (أميري افتراضيًا) يُستخدم فقط داخل الـ Canvas لنص الآية وشارة السورة. */
 
 :root {
-  --gold: #d4af37;
-  --gold-soft: rgba(212, 175, 55, 0.35);
-  --bg: #0b0b0d;
-  --bg-card: #16161a;
-  --bg-elevated: #1d1d22;
-  --text: #f2f2f2;
-  --text-dim: #a8a8ad;
-  --danger: #ff6b6b;
+  --bg: #f5f0e3;
+  --surface: #fffbf1;
+  --surface2: #ece3cd;
+  --text: #2b2517;
+  --muted: #75694f;
+  --gold: #a87a12;
+  --gold-soft: #e9bd4b;
+  --gold-ink: #231a04;
+  --border: #d9cba9;
+  --danger: #d1453a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0e13;
+    --surface: #131720;
+    --surface2: #1b202b;
+    --text: #f3edde;
+    --muted: #9b9584;
+    --gold: #e9bd4b;
+    --gold-soft: #f2cd6a;
+    --gold-ink: #1d1503;
+    --border: #272c3a;
+    --danger: #ff6b6b;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -18,13 +38,17 @@ html, body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Amiri', "Traditional Arabic", serif;
+  font-family: 'Cairo', "Segoe UI", Tahoma, sans-serif;
+}
+
+button, input, select {
+  font-family: inherit;
 }
 
 .topbar {
   padding: 22px 16px 10px;
   text-align: center;
-  border-bottom: 1px solid var(--gold-soft);
+  border-bottom: 1px solid var(--border);
 }
 
 .topbar h1 {
@@ -36,7 +60,7 @@ html, body {
 
 .topbar .sub {
   margin: 6px 0 0;
-  color: var(--text-dim);
+  color: var(--muted);
   font-size: 0.9rem;
 }
 
@@ -49,38 +73,43 @@ html, body {
   gap: 14px;
 }
 
-/* التبويبات */
+/* التبويبات: شريط واحد segmented control */
 .tabs {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+  background: var(--surface2);
+  border-radius: 14px;
+  padding: 4px;
   overflow-x: auto;
-  padding-bottom: 4px;
 }
 
 .tab-btn {
-  flex: 0 0 auto;
-  background: var(--bg-card);
-  color: var(--text-dim);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  flex: 1 1 0;
+  min-width: max-content;
+  min-height: 44px;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.88rem;
   font-family: inherit;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .tab-btn.active {
-  color: var(--gold);
-  border-color: var(--gold-soft);
-  background: rgba(212, 175, 55, 0.08);
+  color: var(--gold-ink);
+  background: var(--gold-soft);
+  font-weight: 700;
 }
 
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
 .tab-panel, .actions-row {
-  background: var(--bg-card);
-  border: 1px solid rgba(212, 175, 55, 0.16);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
 }
@@ -96,7 +125,7 @@ html, body {
 
 .select {
   width: 100%;
-  background: var(--bg-elevated);
+  background: var(--surface2);
   color: var(--text);
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 10px;
@@ -117,7 +146,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg-elevated);
+  background: var(--surface2);
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 10px;
   padding: 6px 10px;
@@ -141,7 +170,7 @@ html, body {
 }
 
 .hint {
-  color: var(--text-dim);
+  color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.6;
   margin: 10px 0 0;
@@ -155,7 +184,7 @@ html, body {
 }
 
 .reciter-card {
-  background: var(--bg-elevated);
+  background: var(--surface2);
   border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 10px;
   padding: 10px;
@@ -166,7 +195,7 @@ html, body {
 }
 
 .reciter-card .r-name { display: block; font-size: 0.92rem; }
-.reciter-card .r-country { display: block; font-size: 0.72rem; color: var(--text-dim); margin-top: 4px; }
+.reciter-card .r-country { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
 
 .reciter-card.selected {
   border-color: var(--gold);
@@ -229,7 +258,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-dim);
+  color: var(--muted);
   font-size: 0.75rem;
 }
 
@@ -239,7 +268,7 @@ html, body {
 .font-list { display: flex; flex-direction: column; gap: 8px; }
 
 .font-card {
-  background: var(--bg-elevated);
+  background: var(--surface2);
   border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 10px;
   padding: 12px;
@@ -265,7 +294,7 @@ html, body {
 .counter-style-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 
 .counter-style-card {
-  background: var(--bg-elevated);
+  background: var(--surface2);
   border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 10px;
   padding: 10px 12px;
@@ -281,7 +310,7 @@ html, body {
 
 .option-card {
   flex: 1;
-  background: var(--bg-elevated);
+  background: var(--surface2);
   border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 10px;
   padding: 10px 8px;
@@ -312,8 +341,8 @@ html, body {
 
 .btn-secondary {
   flex: 1;
-  background: var(--bg-card);
-  color: var(--text-dim);
+  background: var(--surface);
+  color: var(--muted);
   border: 1px solid rgba(212, 175, 55, 0.25);
 }
 
@@ -329,7 +358,7 @@ html, body {
 
 .status {
   font-size: 0.85rem;
-  color: var(--text-dim);
+  color: var(--muted);
   min-height: 1.2em;
   text-align: center;
 }
@@ -371,7 +400,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   font-size: 0.78rem;
-  color: var(--text-dim);
+  color: var(--muted);
   margin-top: 2px;
 }
 
@@ -384,7 +413,7 @@ html, body {
 }
 
 .transport-btn {
-  background: var(--bg-card);
+  background: var(--surface);
   border: 1px solid rgba(212, 175, 55, 0.25);
   color: var(--text);
   border-radius: 999px;
@@ -411,7 +440,7 @@ html, body {
   width: 100%;
   height: 10px;
   border-radius: 999px;
-  background: var(--bg-elevated);
+  background: var(--surface2);
   overflow: hidden;
 }
 
@@ -431,11 +460,11 @@ html, body {
 }
 
 .error-card h2 { margin: 0 0 6px; color: var(--danger); font-size: 1rem; }
-.error-card p { margin: 0; font-size: 0.85rem; color: var(--text-dim); }
+.error-card p { margin: 0; font-size: 0.85rem; color: var(--muted); }
 
 .foot {
   text-align: center;
-  color: var(--text-dim);
+  color: var(--muted);
   font-size: 0.75rem;
   padding: 20px;
 }
