@@ -14,6 +14,7 @@ const state = {
   activeBackground: null, // الخلفية المحمَّلة فعليًا (عنصر video/img) للمعاينة الحالية
   selectedFontId: 'amiri',
   showReciterName: true,
+  showTranslation: false,
   counterStyle: 'pill',
   aspectRatio: '9:16',
   quality: 'normal',
@@ -39,6 +40,7 @@ const bgHintEl = document.getElementById('bgHint');
 
 const fontListEl = document.getElementById('fontList');
 const toggleReciterNameEl = document.getElementById('toggleReciterName');
+const toggleTranslationEl = document.getElementById('toggleTranslation');
 const counterStyleListEl = document.getElementById('counterStyleList');
 const aspectRatioListEl = document.getElementById('aspectRatioList');
 const qualityListEl = document.getElementById('qualityList');
@@ -340,6 +342,10 @@ toggleReciterNameEl.addEventListener('change', () => {
   state.showReciterName = toggleReciterNameEl.checked;
 });
 
+toggleTranslationEl.addEventListener('change', () => {
+  state.showTranslation = toggleTranslationEl.checked;
+});
+
 watermarkInputEl.addEventListener('input', () => {
   state.watermarkText = watermarkInputEl.value;
 });
@@ -443,7 +449,7 @@ btnGenerate.addEventListener('click', async () => {
 
   try {
     setStatus('جاري جلب نص الآيات...');
-    const ayahTexts = await getAyahRangeText(state.selectedSurah.number, state.fromAyah, state.toAyah);
+    const ayahTexts = await getAyahRangeText(state.selectedSurah.number, state.fromAyah, state.toAyah, state.showTranslation);
 
     setStatus('جاري تحديد مجلد القارئ...');
     const folder = await resolveReciterFolder(reciter);
@@ -543,6 +549,9 @@ btnReset.addEventListener('click', () => {
 
   state.showReciterName = true;
   toggleReciterNameEl.checked = true;
+
+  state.showTranslation = false;
+  toggleTranslationEl.checked = false;
 
   state.counterStyle = 'pill';
   document.querySelectorAll('.counter-style-card').forEach(c => c.classList.toggle('selected', c.dataset.id === 'pill'));

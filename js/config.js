@@ -14,6 +14,7 @@ var MAX_SECONDS = 180;
 // مصدر نص الآيات
 var QURAN_TEXT_API = 'https://api.alquran.cloud/v1';
 var QURAN_EDITION = 'quran-uthmani';
+var QURAN_TRANSLATION_EDITION = 'en.sahih'; // تُجلب فقط عند تفعيل "إظهار الترجمة الإنجليزية"
 
 // مصدر الصوت لكل آية
 var EVERYAYAH_BASE = 'https://everyayah.com/data';

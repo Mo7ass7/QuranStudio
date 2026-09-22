@@ -55,18 +55,36 @@ async function getSurahList() {
 }
 
 // يجلب نصوص آيات نطاق [fromAyah..toAyah] من سورة surahNumber، مع تنظيف
-// أي بسملة مدمجة زيادة في بداية الآية 1 (لغير الفاتحة والتوبة)
-async function getAyahRangeText(surahNumber, fromAyah, toAyah) {
-  const res = await fetch(viaProxy(`${QURAN_TEXT_API}/surah/${surahNumber}/${QURAN_EDITION}`));
+// أي بسملة مدمجة زيادة في بداية الآية 1 (لغير الفاتحة والتوبة). إن طُلبت
+// الترجمة (includeTranslation)، يجلب طبعتَي quran-uthmani وen.sahih معًا
+// في استدعاء واحد (endpoint المتعدد الطبعات لـ api.alquran.cloud) بدل
+// استدعاءين منفصلين.
+async function getAyahRangeText(surahNumber, fromAyah, toAyah, includeTranslation) {
+  const url = includeTranslation
+    ? `${QURAN_TEXT_API}/surah/${surahNumber}/editions/${QURAN_EDITION},${QURAN_TRANSLATION_EDITION}`
+    : `${QURAN_TEXT_API}/surah/${surahNumber}/${QURAN_EDITION}`;
+  const res = await fetch(viaProxy(url));
   if (!res.ok) throw new Error(`استجابة غير ناجحة (${res.status}) عند جلب نص السورة ${surahNumber}`);
   const json = await res.json();
-  if (!json || !json.data || !Array.isArray(json.data.ayahs)) {
-    throw new Error('شكل استجابة غير متوقع عند جلب نص السورة');
+
+  let arabicAyahs, translationAyahs;
+  if (includeTranslation) {
+    if (!json || !Array.isArray(json.data) || json.data.length < 2 ||
+        !Array.isArray(json.data[0].ayahs) || !Array.isArray(json.data[1].ayahs)) {
+      throw new Error('شكل استجابة غير متوقع عند جلب نص السورة مع الترجمة');
+    }
+    arabicAyahs = json.data[0].ayahs;
+    translationAyahs = json.data[1].ayahs;
+  } else {
+    if (!json || !json.data || !Array.isArray(json.data.ayahs)) {
+      throw new Error('شكل استجابة غير متوقع عند جلب نص السورة');
+    }
+    arabicAyahs = json.data.ayahs;
   }
 
   const bismillahRef = (surahNumber !== 1 && surahNumber !== 9) ? await getBismillahRef() : null;
 
-  const slice = json.data.ayahs.filter(a => a.numberInSurah >= fromAyah && a.numberInSurah <= toAyah);
+  const slice = arabicAyahs.filter(a => a.numberInSurah >= fromAyah && a.numberInSurah <= toAyah);
   if (slice.length !== (toAyah - fromAyah + 1)) {
     throw new Error('نطاق الآيات المطلوب غير مكتمل في استجابة الـ API');
   }
@@ -76,6 +94,11 @@ async function getAyahRangeText(surahNumber, fromAyah, toAyah) {
     if (bismillahRef && a.numberInSurah === 1 && text.trim().startsWith(bismillahRef)) {
       text = text.trim().slice(bismillahRef.length).trim();
     }
-    return { numberInSurah: a.numberInSurah, globalNumber: a.number, text };
+    const entry = { numberInSurah: a.numberInSurah, globalNumber: a.number, text };
+    if (includeTranslation) {
+      const t = translationAyahs.find(x => x.numberInSurah === a.numberInSurah);
+      entry.translation = t ? t.text.trim() : '';
+    }
+    return entry;
   });
 }

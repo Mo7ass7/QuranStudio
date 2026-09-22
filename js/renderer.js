@@ -32,6 +32,11 @@ function createRenderer(canvas) {
     return `${sizePx}px "${fontFamily}", serif`;
   }
 
+  // خط الترجمة الإنجليزية: لاتيني عادي (Cairo)، وليس خط الآية العربي المختار
+  function translationFont(sizePx) {
+    return `${sizePx}px Cairo, sans-serif`;
+  }
+
   // مسار مستطيل بزوايا دائرية (مطابق لدالة rr() في النموذج التجريبي)
   function roundedRectPath(x, y, w, h, r) {
     ctx.beginPath();
@@ -116,16 +121,52 @@ function createRenderer(canvas) {
     return { fontSize: size, lineHeight: size * 1.85, lines: wrapText(text, maxWidth) };
   }
 
-  function prepareAyahLayout(text, timing, fontFamily, sc, tall) {
+  // يلائم نص الترجمة الإنجليزية ضمن المساحة الرأسية المتبقية بعد نص الآية
+  // العربي (remainingHeight)، بتصغير الخط تدريجيًا حتى يتسع — بخط لاتيني
+  // عادي (Cairo)، أصغر من خط الآية دائمًا
+  var TRANSLATION_START_DESIGN_SIZE_TALL = 30;
+  var TRANSLATION_START_DESIGN_SIZE_WIDE = 36;
+  var MIN_TRANSLATION_DESIGN_SIZE = 16;
+
+  function fitTranslationText(text, maxWidth, remainingHeight, sc, tall) {
+    if (!text) return null;
+    const startSize = (tall ? TRANSLATION_START_DESIGN_SIZE_TALL : TRANSLATION_START_DESIGN_SIZE_WIDE) * sc;
+    const minSize = MIN_TRANSLATION_DESIGN_SIZE * sc;
+    for (let size = startSize; size >= minSize; size -= 2) {
+      ctx.font = translationFont(size);
+      const lineHeight = size * 1.5;
+      const lines = wrapText(text, maxWidth);
+      if (lines.length * lineHeight <= remainingHeight) {
+        return { fontSize: size, lineHeight, lines };
+      }
+    }
+    ctx.font = translationFont(minSize);
+    return { fontSize: minSize, lineHeight: minSize * 1.5, lines: wrapText(text, maxWidth) };
+  }
+
+  function prepareAyahLayout(text, timing, fontFamily, sc, tall, translation) {
     const w = canvas.width;
     const maxWidth = w * (tall ? 0.84 : 0.66);
     const maxHeight = ayahSafeZone(sc).height;
     const startDesignSize = tall ? 66 : 84;
+    const gap = 14 * sc;
+
+    // الترجمة تُحسب فقط مرة واحدة لكل آية (مع الجزء الأخير في وضع الأسطر
+    // المتعددة، أو مع النص الثابت كاملاً)، ضمن المساحة المتبقية تحت نص
+    // الآية العربي — لا تدفعه خارج المنطقة الآمنة أبدًا
+    function buildTranslation(arabicLineHeight) {
+      if (!translation) return null;
+      const remaining = Math.max(0, maxHeight - arabicLineHeight - gap);
+      return fitTranslationText(translation, maxWidth, remaining, sc, tall);
+    }
 
     const fitted = fitAyahText(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
-    if (fitted && fitted.lines.length <= 1) return { mode: 'fixed', ...fitted };
+    if (fitted && fitted.lines.length <= 1) {
+      return { mode: 'fixed', ...fitted, translation: buildTranslation(fitted.lineHeight) };
+    }
 
     const { fontSize, lineHeight, lines } = fitSingleLineFont(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
+    const lastLineTranslation = buildTranslation(lineHeight);
 
     const duration = timing.endTime - timing.startTime;
     const totalChars = lines.reduce((sum, l) => sum + l.length, 0) || 1;
@@ -136,7 +177,7 @@ function createRenderer(canvas) {
       const startTime = cursor;
       const endTime = isLast ? timing.endTime : cursor + duration * share;
       cursor = endTime;
-      return { startTime, endTime, fontSize, lineHeight, lines: [line] };
+      return { startTime, endTime, fontSize, lineHeight, lines: [line], translation: isLast ? lastLineTranslation : null };
     });
 
     return { mode: 'chunks', chunks };
@@ -153,7 +194,7 @@ function createRenderer(canvas) {
       if (!ayahEntry) continue;
       layouts.set(timing.ayahNumber, {
         timing,
-        layout: prepareAyahLayout(ayahEntry.text, timing, fontFamily, sc, tall),
+        layout: prepareAyahLayout(ayahEntry.text, timing, fontFamily, sc, tall, ayahEntry.translation),
       });
     }
     return layouts;
@@ -249,8 +290,19 @@ function createRenderer(canvas) {
       active = layout.chunks.find(c => t >= c.startTime && t < c.endTime) || layout.chunks[layout.chunks.length - 1];
     }
 
+    const alpha = computeFadeAlpha(timing, t, isLastAyah);
+    const translation = active.translation;
+    const gap = 14 * sc;
+
+    // إن وُجدت ترجمة، تُحسب الكتلتان (العربي + الترجمة) معًا كوحدة واحدة
+    // وتُمركزان حول cy، بدل تمركز النص العربي وحده ثم إضافة الترجمة أسفله
+    // بلا حساب — هذا ما يبقي كل شيء داخل المنطقة الآمنة نفسها
+    const arabicBlockHeight = active.lines.length * active.lineHeight;
+    const translationBlockHeight = translation ? translation.lines.length * translation.lineHeight + gap : 0;
+    const arabicTop = cy - (arabicBlockHeight + translationBlockHeight) / 2;
+
     ctx.save();
-    ctx.globalAlpha = computeFadeAlpha(timing, t, isLastAyah);
+    ctx.globalAlpha = alpha;
     ctx.font = ayahFont(active.fontSize, fontFamily);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -259,9 +311,26 @@ function createRenderer(canvas) {
     ctx.shadowColor = 'rgba(0,0,0,.65)';
     ctx.shadowBlur = 14 * sc;
     active.lines.forEach((line, i) => {
-      ctx.fillText(line, w / 2, cy + (i - (active.lines.length - 1) / 2) * active.lineHeight);
+      ctx.fillText(line, w / 2, arabicTop + (i + 0.5) * active.lineHeight);
     });
     ctx.restore();
+
+    if (translation) {
+      const translationTop = arabicTop + arabicBlockHeight + gap;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = translationFont(translation.fontSize);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.direction = 'ltr';
+      ctx.fillStyle = 'rgba(255,255,255,.82)';
+      ctx.shadowColor = 'rgba(0,0,0,.55)';
+      ctx.shadowBlur = 10 * sc;
+      translation.lines.forEach((line, i) => {
+        ctx.fillText(line, w / 2, translationTop + (i + 0.5) * translation.lineHeight);
+      });
+      ctx.restore();
+    }
   }
 
   // عداد الآيات — 4 أشكال (حبّة/حلقة/بسيط/شريط)، pos/M نسبيان لنطاق الآيات
