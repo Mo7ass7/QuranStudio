@@ -1,0 +1,17 @@
+# QuranStudio — إعداد نشر الموقع كملفات ثابتة (Static Assets) على
+# Cloudflare Workers، حسب الواجهة الحديثة التي توحّد Workers وPages تحت
+# أمر واحد (npx wrangler deploy). لا يوجد كود Worker هنا إطلاقًا — فقط
+# تقديم ملفات الموقع الساكنة كما هي (index.html وما يحمّله من js/css/fonts).
+#
+# النشر من حسابك على Cloudflare (يتطلب مصادقة لا أملكها من بيئتي):
+#   npx wrangler login
+#   npx wrangler deploy
+# أو عبر لوحة Cloudflare: Workers & Pages → Create → Connect to Git،
+# الذي يقرأ هذا الملف تلقائيًا فيتعرّف على المشروع كموقع ملفات ثابتة.
+
+name = "quranstudio"
+compatibility_date = "2024-09-25"
+
+[assets]
+directory = "."
+not_found_handling = "404-page"
