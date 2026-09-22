@@ -2,8 +2,10 @@
 // (بالثواني داخل الخط الزمني الموحّد)، فلا يوجد أي حالة داخلية متغيرة غير
 // مشتقة من t — هذا ما يجعل التقديم/الترجيع والتصدير يعملان بلا أخطاء.
 
-var MIN_AYAH_FONT_PX = 26;
-var MAX_AYAH_FONT_PX = 64;
+// نسب من عرض الإطار وليست بكسلات ثابتة، حتى تعمل صحيحة على أي نسبة عرض
+// (9:16 أو 16:9) وأي جودة (عادية أو 720p) — القيم مبنية على مرجع 1080px
+var MAX_AYAH_FONT_RATIO = 64 / 1080;
+var MIN_AYAH_FONT_RATIO = 26 / 1080;
 var WORDS_PER_CHUNK = 12;
 
 function createRenderer(canvas) {
@@ -33,7 +35,10 @@ function createRenderer(canvas) {
 
   // يحاول تصغير حجم الخط تدريجيًا حتى يتسع النص كاملاً ضمن maxWidth/maxHeight
   function fitText(text, maxWidth, maxHeight, fontFamily) {
-    for (let size = MAX_AYAH_FONT_PX; size >= MIN_AYAH_FONT_PX; size -= 2) {
+    const maxSize = Math.round(canvas.width * MAX_AYAH_FONT_RATIO);
+    const minSize = Math.round(canvas.width * MIN_AYAH_FONT_RATIO);
+    const step = Math.max(1, Math.round(canvas.width * 0.0019)); // ~2px عند عرض 1080
+    for (let size = maxSize; size >= minSize; size -= step) {
       ctx.font = fontString(size, fontFamily);
       const lineHeight = size * 1.7;
       const lines = wrapText(text, maxWidth);
@@ -67,8 +72,9 @@ function createRenderer(canvas) {
       const startTime = cursor;
       const endTime = idx === chunkTexts.length - 1 ? timing.endTime : cursor + chunkDuration;
       cursor = endTime;
+      const minSize = Math.round(canvas.width * MIN_AYAH_FONT_RATIO);
       const fittedChunk = fitText(chunkText, maxWidth, maxHeight, fontFamily) ||
-        { fontSize: MIN_AYAH_FONT_PX, lines: wrapText(chunkText, maxWidth), lineHeight: MIN_AYAH_FONT_PX * 1.7 };
+        { fontSize: minSize, lines: wrapText(chunkText, maxWidth), lineHeight: minSize * 1.7 };
       return { startTime, endTime, ...fittedChunk };
     });
 
@@ -77,9 +83,9 @@ function createRenderer(canvas) {
 
   // يبني بيانات الرسم لكل آيات النطاق مرة واحدة (وليس كل إطار) لتفادي إعادة
   // حساب التفاف النص وتصغير الخط في كل رسمة
-  function prepareTimelineLayout(ayahTexts, timings, fontFamily) {
+  function prepareTimelineLayout(ayahTexts, timings, fontFamily, textWidthRatio) {
     const w = canvas.width;
-    const maxWidth = w * 0.82;
+    const maxWidth = w * (textWidthRatio || 0.82);
     const maxHeight = canvas.height * 0.34; // حول 50% من الإطار مع هامش أعلى/أسفل
 
     const layouts = new Map();
@@ -332,6 +338,20 @@ function createRenderer(canvas) {
     ctx.fillText(label, x + (boxWidth - circleDiameter) / 2 - fontSize * 0.15, y + boxHeight / 2 + fontSize * 0.05);
   }
 
+  // علامة مائية خفيفة باسم الموقع (SITE_NAME من js/config.js) في زاوية الإطار
+  function drawWatermark(fontFamily) {
+    const w = canvas.width, h = canvas.height;
+    const fontSize = w * 0.022;
+    ctx.font = fontString(fontSize, fontFamily, '600');
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.direction = 'ltr';
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#d4af37';
+    ctx.fillText(SITE_NAME, w * 0.035, h * 0.018);
+    ctx.globalAlpha = 1;
+  }
+
   // دالة الرسم الرئيسية: تعتمد فقط على t (بالثواني) والحالة الثابتة المُجهَّزة
   // مسبقًا (frameData)، فتصلح للتشغيل والتقديم والتصدير دون أي فرق في السلوك
   function draw(t, frameData) {
@@ -341,6 +361,7 @@ function createRenderer(canvas) {
     } = frameData;
 
     drawBackground(background);
+    drawWatermark(fontFamily);
     drawHeaderBadges(surahName, reciterName, showReciterName !== false, fontFamily);
 
     const clampedT = Math.max(0, Math.min(t, timings.length ? timings[timings.length - 1].endTime : 0));

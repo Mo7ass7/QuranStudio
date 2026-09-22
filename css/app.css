@@ -277,6 +277,22 @@ html, body {
 
 .counter-style-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); color: var(--gold); }
 
+.option-row { display: flex; gap: 8px; margin-top: 4px; }
+
+.option-card {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.option-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); color: var(--gold); }
+
 /* الأزرار */
 .btn {
   border: none;

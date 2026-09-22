@@ -15,6 +15,8 @@ const state = {
   selectedFontId: 'amiri',
   showReciterName: true,
   counterStyle: 'pill',
+  aspectRatio: '9:16',
+  quality: 'normal',
   frameData: null, // { layouts, timings, surahName, reciterName, fromAyah, toAyah, ... }
   mergedBuffer: null,
   totalDuration: 0,
@@ -36,6 +38,8 @@ const bgHintEl = document.getElementById('bgHint');
 const fontListEl = document.getElementById('fontList');
 const toggleReciterNameEl = document.getElementById('toggleReciterName');
 const counterStyleListEl = document.getElementById('counterStyleList');
+const aspectRatioListEl = document.getElementById('aspectRatioList');
+const qualityListEl = document.getElementById('qualityList');
 
 const btnGenerate = document.getElementById('btnGenerate');
 const btnReset = document.getElementById('btnReset');
@@ -285,6 +289,32 @@ toggleReciterNameEl.addEventListener('change', () => {
   state.showReciterName = toggleReciterNameEl.checked;
 });
 
+function initAspectRatioList() {
+  aspectRatioListEl.innerHTML = ASPECT_RATIOS.map(a => `
+    <button type="button" class="option-card${a.id === state.aspectRatio ? ' selected' : ''}" data-id="${a.id}">${a.label}</button>
+  `).join('');
+}
+
+aspectRatioListEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.option-card');
+  if (!card) return;
+  state.aspectRatio = card.dataset.id;
+  aspectRatioListEl.querySelectorAll('.option-card').forEach(c => c.classList.toggle('selected', c === card));
+});
+
+function initQualityList() {
+  qualityListEl.innerHTML = QUALITY_OPTIONS.map(q => `
+    <button type="button" class="option-card${q.id === state.quality ? ' selected' : ''}" data-id="${q.id}">${q.label}</button>
+  `).join('');
+}
+
+qualityListEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.option-card');
+  if (!card) return;
+  state.quality = card.dataset.id;
+  qualityListEl.querySelectorAll('.option-card').forEach(c => c.classList.toggle('selected', c === card));
+});
+
 // ------- المشغّل -------
 let userSeeking = false;
 
@@ -355,11 +385,19 @@ btnGenerate.addEventListener('click', async () => {
 
     setStatus('جاري تجهيز الرسم...');
     const fontOption = FONT_OPTIONS.find(f => f.id === state.selectedFontId) || FONT_OPTIONS[0];
+    const aspectOption = ASPECT_RATIOS.find(a => a.id === state.aspectRatio) || ASPECT_RATIOS[0];
     // ننتظر تحميل الخط المختار فعليًا قبل أول رسم لتفادي رسم بخط النظام الافتراضي
     await document.fonts.load(`64px "${fontOption.family}"`);
     await document.fonts.load(`700 64px "${fontOption.family}"`);
 
-    const layouts = renderer.prepareTimelineLayout(ayahTexts, timings, fontOption.family);
+    // نضبط دقة الـ Canvas الفعلية حسب النسبة/الجودة المختارتين قبل أي حساب
+    // للتخطيط (كل الأحجام داخل الراسم نسب من canvas.width/height)
+    const dims = getFrameDimensions(state.aspectRatio, state.quality);
+    canvas.width = dims.width;
+    canvas.height = dims.height;
+    frameWrapEl.style.aspectRatio = `${dims.width} / ${dims.height}`;
+
+    const layouts = renderer.prepareTimelineLayout(ayahTexts, timings, fontOption.family, aspectOption.textWidthRatio);
     state.frameData = {
       layouts,
       timings,
@@ -432,6 +470,15 @@ btnReset.addEventListener('click', () => {
   state.counterStyle = 'pill';
   document.querySelectorAll('.counter-style-card').forEach(c => c.classList.toggle('selected', c.dataset.id === 'pill'));
 
+  state.aspectRatio = '9:16';
+  aspectRatioListEl.querySelectorAll('.option-card').forEach(c => c.classList.toggle('selected', c.dataset.id === '9:16'));
+  state.quality = 'normal';
+  qualityListEl.querySelectorAll('.option-card').forEach(c => c.classList.toggle('selected', c.dataset.id === 'normal'));
+  const defaultDims = getFrameDimensions('9:16', 'normal');
+  canvas.width = defaultDims.width;
+  canvas.height = defaultDims.height;
+  frameWrapEl.style.aspectRatio = `${defaultDims.width} / ${defaultDims.height}`;
+
   if (state.surahList.length) setSurahByNumber(state.surahList[0].number);
   surahSelect.value = state.surahList[0] ? String(state.surahList[0].number) : '';
 });
@@ -482,3 +529,5 @@ initSurahList();
 initBackgroundGrid();
 initFontList();
 initCounterStyleList();
+initAspectRatioList();
+initQualityList();

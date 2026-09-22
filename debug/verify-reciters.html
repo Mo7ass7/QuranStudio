@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>QuranStudio — التحقق من روابط القرّاء</title>
+<link rel="stylesheet" href="../css/debug.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>QuranStudio</h1>
+    <p class="sub">التحقق من أن رابط صوت كل قارئ في js/reciters.js يعمل فعليًا</p>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <p class="hint">
+        يختبر كل قارئ في القائمة: هل يُحلّ اسم مجلده من فهرس everyayah.com
+        الحي؟ وهل عينة صوت حقيقية (آية الإخلاص 1) تُحمَّل منه فعلاً؟
+        يستغرق هذا وقتًا (طلب واحد تقريبًا لكل قارئ) لأنه يختبر الشبكة الحقيقية.
+      </p>
+      <button id="btnRun" class="btn">ابدأ التحقق من كل القرّاء</button>
+      <button id="btnCopy" class="btn small" hidden>نسخ التقرير</button>
+      <div id="progress" class="status"></div>
+    </section>
+
+    <section class="card">
+      <table id="resultsTable" style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+        <thead>
+          <tr>
+            <th style="text-align:right; padding:6px 4px;">القارئ</th>
+            <th style="text-align:right; padding:6px 4px;">المعرّف</th>
+            <th style="text-align:right; padding:6px 4px;">النتيجة</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </section>
+
+    <section class="card debug-card">
+      <h2>ملخص نصي (للنسخ)</h2>
+      <pre id="reportText" class="debug-pre">لم يبدأ الاختبار بعد.</pre>
+    </section>
+  </main>
+
+  <footer class="foot"><p>QuranStudio — أداة تشخيص (لا تُنشر كجزء من التطبيق الأساسي)</p></footer>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/reciters.js"></script>
+  <script src="../js/everyayahIndex.js"></script>
+  <script src="../js/debug/verify-reciters.js"></script>
+</body>
+</html>

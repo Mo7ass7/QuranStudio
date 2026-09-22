@@ -1,4 +1,7 @@
 // QuranStudio — إعدادات عامة مشتركة بين كل وحدات التطبيق
+
+// اسم الموقع، يُستخدم كعلامة مائية على الإطار (راجع drawWatermark في renderer.js)
+var SITE_NAME = 'QuranStudio';
 //
 // ملاحظة: نستخدم var عمدًا هنا (وليس const/let) لأن هذه القيم تُقرأ من
 // ملفات JS أخرى محمَّلة عبر وسوم <script> منفصلة؛ var يضمن ارتباطها بكائن
@@ -35,6 +38,29 @@ var FONT_OPTIONS = [
   { id: 'arefRuqaa', label: 'عارف رقعة', family: 'Aref Ruqaa' },
   { id: 'cairo', label: 'القاهرة', family: 'Cairo' },
 ];
+
+// نسب العرض المتاحة، مع نسبة عرض النص المناسبة لكل نسبة (70% في 16:9 كما
+// في المواصفة، و82% في 9:16 كما استقرت عليه المرحلة 1)
+var ASPECT_RATIOS = [
+  { id: '9:16', label: '9:16 (عمودي)', textWidthRatio: 0.82 },
+  { id: '16:9', label: '16:9 (أفقي)', textWidthRatio: 0.70 },
+];
+
+var QUALITY_OPTIONS = [
+  { id: 'normal', label: 'جودة عادية' },
+  { id: 'low', label: 'جودة أقل (720p)' },
+];
+
+// دقة الإطار الفعلية (عرض×ارتفاع بالبكسل) حسب النسبة والجودة المختارتين
+function getFrameDimensions(aspectId, qualityId) {
+  var dims = {
+    '9:16': { normal: [1080, 1920], low: [720, 1280] },
+    '16:9': { normal: [1920, 1080], low: [1280, 720] },
+  };
+  var set = dims[aspectId] || dims['9:16'];
+  var pair = set[qualityId] || set.normal;
+  return { width: pair[0], height: pair[1] };
+}
 
 // أشكال عداد الآيات المتاحة في تبويب العرض
 var COUNTER_STYLES = [
