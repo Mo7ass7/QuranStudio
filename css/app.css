@@ -125,10 +125,11 @@ button, input, select {
 
 .select {
   width: 100%;
+  min-height: 46px;
   background: var(--surface2);
   color: var(--text);
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 10px 12px;
   font-size: 1rem;
   font-family: inherit;
@@ -147,17 +148,17 @@ button, input, select {
   align-items: center;
   justify-content: space-between;
   background: var(--surface2);
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 6px 10px;
 }
 
 .stepper-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: none;
-  background: rgba(212, 175, 55, 0.15);
+  width: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
   color: var(--gold);
   font-size: 1.1rem;
   cursor: pointer;
@@ -185,9 +186,10 @@ button, input, select {
 
 .reciter-card {
   background: var(--surface2);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 10px;
+  min-height: 44px;
   text-align: center;
   cursor: pointer;
   color: var(--text);
@@ -198,11 +200,12 @@ button, input, select {
 .reciter-card .r-country { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
 
 .reciter-card.selected {
-  border-color: var(--gold);
-  background: rgba(212, 175, 55, 0.12);
+  border-color: transparent;
+  background: var(--gold-soft);
 }
 
-.reciter-card.selected .r-name { color: var(--gold); }
+.reciter-card.selected .r-name { color: var(--gold-ink); font-weight: 700; }
+.reciter-card.selected .r-country { color: var(--gold-ink); opacity: 0.75; }
 
 /* شبكة الخلفيات */
 .bg-grid {
@@ -215,10 +218,10 @@ button, input, select {
 .bg-card {
   position: relative;
   aspect-ratio: 9 / 16;
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
-  border: 2px solid rgba(212, 175, 55, 0.2);
-  background: #000;
+  border: 2px solid transparent;
+  background: var(--surface2);
   cursor: pointer;
   padding: 0;
 }
@@ -230,28 +233,30 @@ button, input, select {
   display: block;
 }
 
-.bg-card.selected { border-color: var(--gold); }
+.bg-card.selected { border-color: var(--gold-soft); }
 
 .bg-card .bg-label {
   position: absolute;
-  inset: auto 0 0 0;
-  background: rgba(0,0,0,0.55);
-  color: var(--text);
-  font-size: 0.62rem;
-  padding: 3px 4px;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 14px 4px 5px;
+  font-size: 0.72rem;
+  color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.7));
   text-align: center;
 }
 
 .bg-card .bg-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: rgba(212, 175, 55, 0.9);
-  color: #1a1400;
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: 999px;
+  top: 6px;
+  inset-inline-end: 6px;
+  background: var(--gold-soft);
+  color: var(--gold-ink);
+  font-size: 0.65rem;
+  padding: 1px 7px;
+  border-radius: 8px;
   font-weight: 700;
+  line-height: 1.6;
 }
 
 .bg-card.bg-none {
@@ -262,96 +267,153 @@ button, input, select {
   font-size: 0.75rem;
 }
 
-.bg-upload-btn { width: 100%; }
+.bg-upload-btn {
+  width: 100%;
+  min-height: 44px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
 
 /* قائمة الخطوط */
 .font-list { display: flex; flex-direction: column; gap: 8px; }
 
 .font-card {
   background: var(--surface2);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 12px;
+  min-height: 44px;
   text-align: right;
   cursor: pointer;
   color: var(--text);
   font-size: 1.15rem;
 }
 
-.font-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); color: var(--gold); }
+.font-card.selected { border-color: transparent; background: var(--gold-soft); color: var(--gold-ink); font-weight: 700; }
 
-/* مفتاح تبديل + قائمة أشكال العداد */
+/* مفتاح تبديل كبسولي (مطابق للنموذج التجريبي) */
 .toggle-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
   font-size: 0.95rem;
   cursor: pointer;
 }
 
-.toggle-row input { width: 20px; height: 20px; accent-color: var(--gold); }
+.toggle-row input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 52px;
+  height: 30px;
+  border-radius: 15px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  margin: 0;
+  transition: background 0.15s ease;
+}
+
+.toggle-row input::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.15s ease;
+}
+
+.toggle-row input:checked { background: var(--gold-soft); }
+.toggle-row input:checked::after { inset-inline-start: 25px; background: var(--gold-ink); }
 
 .counter-style-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 
 .counter-style-card {
   background: var(--surface2);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 10px 12px;
+  min-height: 44px;
   text-align: right;
   cursor: pointer;
   color: var(--text);
   font-size: 0.9rem;
 }
 
-.counter-style-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); color: var(--gold); }
+.counter-style-card.selected { border-color: transparent; background: var(--gold-soft); color: var(--gold-ink); font-weight: 700; }
 
-.option-row { display: flex; gap: 8px; margin-top: 4px; }
+/* segmented control ثانٍ (نسبة العرض/الجودة)، بنفس نمط التبويبات */
+.option-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--surface2);
+  padding: 5px;
+  border-radius: 12px;
+  margin-top: 4px;
+}
 
 .option-card {
-  flex: 1;
-  background: var(--surface2);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 10px;
-  padding: 10px 8px;
+  min-height: 40px;
+  background: none;
+  border: none;
+  border-radius: 9px;
   text-align: center;
   cursor: pointer;
-  color: var(--text);
+  color: var(--muted);
+  font-weight: 700;
   font-size: 0.85rem;
 }
 
-.option-card.selected { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); color: var(--gold); }
+.option-card.selected { background: var(--gold-soft); color: var(--gold-ink); }
 
 /* الأزرار */
 .btn {
   border: none;
-  border-radius: 999px;
-  padding: 13px 18px;
+  border-radius: 14px;
+  min-height: 44px;
+  padding: 0 18px;
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
+
+.btn svg { width: 18px; height: 18px; flex: none; }
 
 .btn-primary {
   flex: 2;
-  background: linear-gradient(180deg, #e6c65c, var(--gold));
-  color: #1a1400;
+  background: var(--gold-soft);
+  color: var(--gold-ink);
 }
 
 .btn-secondary {
   flex: 1;
-  background: var(--surface);
+  background: var(--surface2);
   color: var(--muted);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  border: 1px solid var(--border);
 }
 
 .btn-export {
   width: 100%;
-  background: linear-gradient(180deg, #e6c65c, var(--gold));
-  color: #1a1400;
-  padding: 16px;
-  font-size: 1.05rem;
+  min-height: 52px;
+  background: var(--gold-soft);
+  color: var(--gold-ink);
+  font-size: 1rem;
 }
 
 .btn:disabled { opacity: 0.55; cursor: wait; }
@@ -366,16 +428,19 @@ button, input, select {
 .status.err { color: var(--danger); }
 .status.ok { color: #6bd47a; }
 
-/* إطار المعاينة (9:16) */
+/* إطار المعاينة */
 .frame-wrap {
   width: 100%;
   max-width: 380px;
   margin: 0 auto;
   aspect-ratio: 9 / 16;
-  border-radius: 18px;
+  border-radius: 22px;
   overflow: hidden;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid var(--border);
   background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .frame-wrap canvas {
@@ -391,47 +456,67 @@ button, input, select {
   width: 100%;
 }
 
+.player-controls .card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+}
+
 .seek-bar {
   width: 100%;
-  accent-color: var(--gold);
+  height: 28px;
+  accent-color: var(--gold-soft);
+  margin: 8px 0 2px;
 }
 
 .time-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.78rem;
   color: var(--muted);
-  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
 }
+
+.time-row .dur { color: var(--gold); font-weight: 700; }
 
 .transport-row {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: 14px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .transport-btn {
-  background: var(--surface);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  min-height: 44px;
+  padding: 0 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 999px;
-  width: 46px;
-  height: 46px;
-  font-size: 1rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
   cursor: pointer;
   font-family: inherit;
 }
 
+.transport-btn svg { width: 18px; height: 18px; flex: none; }
+
 .transport-btn-main {
-  width: 58px;
-  height: 58px;
-  font-size: 1.3rem;
-  background: linear-gradient(180deg, #e6c65c, var(--gold));
-  color: #1a1400;
-  border: none;
+  flex: 2;
+  background: var(--gold-soft);
+  color: var(--gold-ink);
+  border-color: transparent;
+  font-weight: 700;
 }
+
+.transport-btn-icon { flex: 0 0 44px; padding: 0; }
 
 /* التصدير */
 .export-progress-wrap { max-width: 380px; margin: 0 auto; width: 100%; }
@@ -447,7 +532,7 @@ button, input, select {
 .export-progress-bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #e6c65c, var(--gold));
+  background: var(--gold-soft);
   transition: width 0.1s linear;
 }
 

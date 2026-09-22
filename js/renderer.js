@@ -1,21 +1,50 @@
 // QuranStudio — راسم الإطار على Canvas. دالة draw(t) تعتمد على الزمن فقط
 // (بالثواني داخل الخط الزمني الموحّد)، فلا يوجد أي حالة داخلية متغيرة غير
 // مشتقة من t — هذا ما يجعل التقديم/الترجيع والتصدير يعملان بلا أخطاء.
+//
+// القياسات والألوان هنا منقولة حرفيًا من نموذج التصميم التجريبي (artifact)
+// الذي اعتمده المستخدم: مقياس sc = أصغر ضلع/720 يُستخدم لكل الأحجام، وCairo
+// هو خط كل عناصر الإطار (الشارات، العداد، العلامة المائية) عدا نص الآية
+// نفسه الذي يستخدم الخط المختار من تبويب "الخط".
 
-// نسب من عرض الإطار وليست بكسلات ثابتة، حتى تعمل صحيحة على أي نسبة عرض
-// (9:16 أو 16:9) وأي جودة (عادية أو 720p) — القيم مبنية على مرجع 1080px
-var MAX_AYAH_FONT_RATIO = 64 / 1080;
-var MIN_AYAH_FONT_RATIO = 26 / 1080;
+var MIN_AYAH_DESIGN_SIZE = 28; // بوحدات التصميم المرجعية (720px)، قبل الضرب بـ sc
 var WORDS_PER_CHUNK = 12;
 
 function createRenderer(canvas) {
   const ctx = canvas.getContext('2d');
 
-  function fontString(sizePx, fontFamily, weight) {
-    return `${weight ? weight + ' ' : ''}${sizePx}px ${fontFamily}, "Traditional Arabic", serif`;
+  function scaleFactor() {
+    return Math.min(canvas.width, canvas.height) / 720;
   }
 
-  // يلف النص على أسطر بحيث لا يتجاوز عرض كل سطر maxWidth
+  function isTall() {
+    return canvas.height > canvas.width;
+  }
+
+  function clamp(v, a, b) {
+    return Math.min(b, Math.max(a, v));
+  }
+
+  function uiFont(sizePx, weight) {
+    return `${weight ? weight + ' ' : ''}${sizePx}px Cairo, sans-serif`;
+  }
+
+  function ayahFont(sizePx, fontFamily) {
+    return `${sizePx}px "${fontFamily}", serif`;
+  }
+
+  // مسار مستطيل بزوايا دائرية (مطابق لدالة rr() في النموذج التجريبي)
+  function roundedRectPath(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // يلف النص على أسطر بحيث لا يتجاوز عرض كل سطر maxWidth (ctx.font مضبوط مسبقًا)
   function wrapText(text, maxWidth) {
     const words = text.split(/\s+/).filter(Boolean);
     const lines = [];
@@ -33,14 +62,13 @@ function createRenderer(canvas) {
     return lines;
   }
 
-  // يحاول تصغير حجم الخط تدريجيًا حتى يتسع النص كاملاً ضمن maxWidth/maxHeight
-  function fitText(text, maxWidth, maxHeight, fontFamily) {
-    const maxSize = Math.round(canvas.width * MAX_AYAH_FONT_RATIO);
-    const minSize = Math.round(canvas.width * MIN_AYAH_FONT_RATIO);
-    const step = Math.max(1, Math.round(canvas.width * 0.0019)); // ~2px عند عرض 1080
-    for (let size = maxSize; size >= minSize; size -= step) {
-      ctx.font = fontString(size, fontFamily);
-      const lineHeight = size * 1.7;
+  // يحاول تصغير حجم خط الآية تدريجيًا (من startDesignSize إلى 28، بوحدات
+  // التصميم المرجعية) حتى يتسع النص كاملاً ضمن maxWidth/maxHeight
+  function fitAyahText(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc) {
+    for (let designSize = startDesignSize; designSize >= MIN_AYAH_DESIGN_SIZE; designSize -= 2) {
+      const size = designSize * sc;
+      ctx.font = ayahFont(size, fontFamily);
+      const lineHeight = size * 1.85;
       const lines = wrapText(text, maxWidth);
       if (lines.length * lineHeight <= maxHeight) {
         return { fontSize: size, lines, lineHeight };
@@ -49,13 +77,18 @@ function createRenderer(canvas) {
     return null; // لم يتسع حتى عند الحد الأدنى
   }
 
-  // يجهّز بيانات رسم آية واحدة: إما نص ثابت يظهر طوال مدة الآية، أو أجزاء
-  // (حوالي 12 كلمة لكل جزء) تظهر تباعًا بتوقيت نسبي لعدد الحروف
-  function prepareAyahLayout(text, timing, maxWidth, maxHeight, fontFamily) {
-    const fitted = fitText(text, maxWidth, maxHeight, fontFamily);
-    if (fitted) {
-      return { mode: 'fixed', ...fitted };
-    }
+  // يجهّز بيانات رسم آية واحدة: نص ثابت يظهر طوال مدة الآية، أو — إن لم يتسع
+  // حتى عند أصغر حجم (سلوك احتياطي محفوظ من مرحلة سابقة، لا وجود له في
+  // النموذج التجريبي لأنه لم يختبر آيات طويلة) — أجزاء (~12 كلمة) تظهر
+  // تباعًا بتوقيت نسبي لعدد الحروف
+  function prepareAyahLayout(text, timing, fontFamily, sc, tall) {
+    const w = canvas.width, h = canvas.height;
+    const maxWidth = w * (tall ? 0.84 : 0.66);
+    const maxHeight = h * (tall ? 0.42 : 0.50);
+    const startDesignSize = tall ? 66 : 84;
+
+    const fitted = fitAyahText(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
+    if (fitted) return { mode: 'fixed', ...fitted };
 
     const words = text.split(/\s+/).filter(Boolean);
     const chunkTexts = [];
@@ -66,15 +99,15 @@ function createRenderer(canvas) {
     const duration = timing.endTime - timing.startTime;
     const totalChars = chunkTexts.reduce((sum, c) => sum + c.length, 0) || 1;
     let cursor = timing.startTime;
+    const minSize = MIN_AYAH_DESIGN_SIZE * sc;
     const chunks = chunkTexts.map((chunkText, idx) => {
       const share = chunkText.length / totalChars;
       const chunkDuration = duration * share;
       const startTime = cursor;
       const endTime = idx === chunkTexts.length - 1 ? timing.endTime : cursor + chunkDuration;
       cursor = endTime;
-      const minSize = Math.round(canvas.width * MIN_AYAH_FONT_RATIO);
-      const fittedChunk = fitText(chunkText, maxWidth, maxHeight, fontFamily) ||
-        { fontSize: minSize, lines: wrapText(chunkText, maxWidth), lineHeight: minSize * 1.7 };
+      const fittedChunk = fitAyahText(chunkText, maxWidth, maxHeight, fontFamily, startDesignSize, sc) ||
+        { fontSize: minSize, lines: wrapText(chunkText, maxWidth), lineHeight: minSize * 1.85 };
       return { startTime, endTime, ...fittedChunk };
     });
 
@@ -83,18 +116,16 @@ function createRenderer(canvas) {
 
   // يبني بيانات الرسم لكل آيات النطاق مرة واحدة (وليس كل إطار) لتفادي إعادة
   // حساب التفاف النص وتصغير الخط في كل رسمة
-  function prepareTimelineLayout(ayahTexts, timings, fontFamily, textWidthRatio) {
-    const w = canvas.width;
-    const maxWidth = w * (textWidthRatio || 0.82);
-    const maxHeight = canvas.height * 0.34; // حول 50% من الإطار مع هامش أعلى/أسفل
-
+  function prepareTimelineLayout(ayahTexts, timings, fontFamily) {
+    const sc = scaleFactor();
+    const tall = isTall();
     const layouts = new Map();
     for (const timing of timings) {
       const ayahEntry = ayahTexts.find(a => a.numberInSurah === timing.ayahNumber);
       if (!ayahEntry) continue;
       layouts.set(timing.ayahNumber, {
         timing,
-        layout: prepareAyahLayout(ayahEntry.text, timing, maxWidth, maxHeight, fontFamily),
+        layout: prepareAyahLayout(ayahEntry.text, timing, fontFamily, sc, tall),
       });
     }
     return layouts;
@@ -103,7 +134,7 @@ function createRenderer(canvas) {
   // يرسم وسيطًا (فيديو أو صورة) بأسلوب cover (يملأ الإطار مع قص الزائد)
   function drawCoverMedia(media, mediaWidth, mediaHeight) {
     const w = canvas.width, h = canvas.height;
-    if (!mediaWidth || !mediaHeight) return false;
+    if (!mediaWidth || !mediaHeight) return;
     const mediaRatio = mediaWidth / mediaHeight;
     const canvasRatio = w / h;
     let sx, sy, sw, sh;
@@ -119,258 +150,232 @@ function createRenderer(canvas) {
       sy = (mediaHeight - sh) / 2;
     }
     ctx.drawImage(media, sx, sy, sw, sh, 0, 0, w, h);
-    return true;
   }
 
-  // الخلفية: صورة/فيديو بأسلوب cover مع تعتيم خفيف، أو أسود بتدرج (بلا خلفية)
+  // الخلفية: صورة/فيديو بأسلوب cover، أو أسود لخيار "بدون خلفية"، مع نفس
+  // تدرج التعتيم دائمًا (مطابق للنموذج التجريبي)
   function drawBackground(background) {
     const w = canvas.width, h = canvas.height;
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, w, h);
 
-    let drew = false;
     if (background && background.element) {
       const media = background.element;
       const mediaWidth = background.type === 'video' ? media.videoWidth : media.naturalWidth;
       const mediaHeight = background.type === 'video' ? media.videoHeight : media.naturalHeight;
-      drew = drawCoverMedia(media, mediaWidth, mediaHeight);
+      drawCoverMedia(media, mediaWidth, mediaHeight);
     }
 
-    // تدرج تعتيم يزداد نحو الأسفل (أخف فوق خلفية حقيقية، أقوى فوق الأسود الافتراضي)
-    const gradient = ctx.createLinearGradient(0, 0, 0, h);
-    gradient.addColorStop(0, drew ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0)');
-    gradient.addColorStop(1, drew ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.75)');
-    ctx.fillStyle = gradient;
+    const overlay = ctx.createLinearGradient(0, 0, 0, h);
+    overlay.addColorStop(0, 'rgba(0,0,0,.28)');
+    overlay.addColorStop(0.45, 'rgba(0,0,0,.14)');
+    overlay.addColorStop(1, 'rgba(0,0,0,.6)');
+    ctx.fillStyle = overlay;
     ctx.fillRect(0, 0, w, h);
   }
 
-  function drawPillBadge(text, centerX, centerY, { textColor, bgColor, borderColor, fontSize, fontFamily }) {
-    ctx.font = fontString(fontSize, fontFamily, '700');
-    const paddingX = fontSize * 0.9;
-    const paddingY = fontSize * 0.55;
-    const textWidth = ctx.measureText(text).width;
-    const boxWidth = textWidth + paddingX * 2;
-    const boxHeight = fontSize + paddingY * 2;
-    const radius = boxHeight / 2;
-    const x = centerX - boxWidth / 2;
-    const y = centerY - boxHeight / 2;
-
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.arcTo(x + boxWidth, y, x + boxWidth, y + boxHeight, radius);
-    ctx.arcTo(x + boxWidth, y + boxHeight, x, y + boxHeight, radius);
-    ctx.arcTo(x, y + boxHeight, x, y, radius);
-    ctx.arcTo(x, y, x + boxWidth, y, radius);
-    ctx.closePath();
-    ctx.fillStyle = bgColor;
+  // شارة حبّة عامة (تُستخدم لشارتي السورة والقارئ)
+  function drawPillBadge(text, cx, top, hh, fontSize, weight, color, fill, stroke, sc) {
+    ctx.font = uiFont(fontSize, weight);
+    const tw = ctx.measureText(text).width;
+    const pw = tw + hh * 1.1;
+    roundedRectPath(cx - pw / 2, top, pw, hh, hh / 2);
+    ctx.fillStyle = fill;
     ctx.fill();
-    if (borderColor) {
-      ctx.lineWidth = Math.max(1, fontSize * 0.045);
-      ctx.strokeStyle = borderColor;
+    if (stroke) {
+      ctx.lineWidth = 2 * sc;
+      ctx.strokeStyle = stroke;
       ctx.stroke();
     }
-
-    ctx.fillStyle = textColor;
+    ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.direction = 'rtl';
-    ctx.fillText(text, centerX, centerY + fontSize * 0.05);
-
-    return boxHeight;
+    ctx.fillText(text, cx, top + hh / 2 + sc);
   }
 
-  function drawHeaderBadges(surahName, reciterName, showReciterName, fontFamily) {
+  function drawHeaderBadges(surahName, reciterName, showReciterName, sc) {
     const w = canvas.width;
-    const surahFontSize = w * 0.042;
-    const reciterFontSize = w * 0.03;
-    const topY = canvas.height * 0.075;
-
+    const top = 46 * sc, bh = 62 * sc;
     // surahName يأتي جاهزًا من api.alquran.cloud ويتضمن كلمة "سورة" أصلاً
-    // (مثال: "سورة الإخلاص")، فلا نضيفها هنا مرة أخرى تجنبًا للتكرار
-    const surahBoxHeight = drawPillBadge(surahName, w / 2, topY, {
-      textColor: '#d4af37',
-      bgColor: 'rgba(15,15,15,0.72)',
-      borderColor: 'rgba(212,175,55,0.85)',
-      fontSize: surahFontSize,
-      fontFamily,
-    });
-
+    drawPillBadge(surahName, w / 2, top, bh, 30 * sc, '700', '#f2cd6a', 'rgba(18,18,18,.55)', 'rgba(233,189,75,.6)', sc);
     if (showReciterName) {
-      drawPillBadge(`القارئ: ${reciterName}`, w / 2, topY + surahBoxHeight / 2 + reciterFontSize * 1.4, {
-        textColor: '#c9c9ce',
-        bgColor: 'rgba(15,15,15,0.55)',
-        borderColor: null,
-        fontSize: reciterFontSize,
-        fontFamily,
-      });
+      drawPillBadge(`القارئ: ${reciterName}`, w / 2, top + bh + 14 * sc, 54 * sc, 26 * sc, '500', '#ece7da', 'rgba(30,30,30,.55)', null, sc);
     }
   }
 
-  function drawAyahText(layoutEntry, t, fontFamily) {
+  function computeFadeAlpha(timing, t, isLastAyah) {
+    const fadeIn = clamp((t - timing.startTime) / 0.4, 0, 1);
+    const fadeOut = isLastAyah ? 1 : clamp((timing.endTime - t) / 0.3, 0, 1);
+    return fadeIn * fadeOut;
+  }
+
+  function drawAyahText(layoutEntry, t, fontFamily, isLastAyah, sc) {
     if (!layoutEntry) return;
-    const { layout } = layoutEntry;
+    const { layout, timing } = layoutEntry;
     const w = canvas.width, h = canvas.height;
-    const centerY = h * 0.5;
+    const cy = h * (isTall() ? 0.5 : 0.52);
 
     let active = layout;
     if (layout.mode === 'chunks') {
       active = layout.chunks.find(c => t >= c.startTime && t < c.endTime) || layout.chunks[layout.chunks.length - 1];
     }
 
-    ctx.font = fontString(active.fontSize, fontFamily);
+    ctx.save();
+    ctx.globalAlpha = computeFadeAlpha(timing, t, isLastAyah);
+    ctx.font = ayahFont(active.fontSize, fontFamily);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.direction = 'rtl';
     ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur = active.fontSize * 0.25;
-    ctx.shadowOffsetY = active.fontSize * 0.05;
-
-    const totalHeight = active.lines.length * active.lineHeight;
-    const startY = centerY - totalHeight / 2 + active.lineHeight / 2;
+    ctx.shadowColor = 'rgba(0,0,0,.65)';
+    ctx.shadowBlur = 14 * sc;
     active.lines.forEach((line, i) => {
-      ctx.fillText(line, w / 2, startY + i * active.lineHeight);
+      ctx.fillText(line, w / 2, cy + (i - (active.lines.length - 1) / 2) * active.lineHeight);
     });
-
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
+    ctx.restore();
   }
 
-  function drawGoldCircleNumber(centerX, centerY, diameter, number, fontFamily) {
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, diameter / 2, 0, Math.PI * 2);
-    ctx.fillStyle = '#d4af37';
+  // عداد الآيات — 4 أشكال (حبّة/حلقة/بسيط/شريط)، pos/M نسبيان لنطاق الآيات
+  // المختار (الآية 2 من 5 مثلاً)، ورقم الآية الفعلي منفصل داخل الدائرة
+  function drawAyahCounterPill(pos, M, ayahNumber, ccy, sc) {
+    const w = canvas.width;
+    const txt = `الآية ${pos} / ${M}`;
+    ctx.font = uiFont(26 * sc, '500');
+    const tw = ctx.measureText(txt).width;
+    const d = 54 * sc, padT = 22 * sc, padC = 10 * sc, gap = 14 * sc;
+    const pw = padT + tw + gap + d + padC, ph = d + 20 * sc;
+    const x = w / 2 - pw / 2, y = ccy - ph / 2;
+
+    roundedRectPath(x, y, pw, ph, ph / 2);
+    ctx.fillStyle = 'rgba(10,10,10,.62)';
     ctx.fill();
+    ctx.lineWidth = 2 * sc;
+    ctx.strokeStyle = 'rgba(233,189,75,.35)';
+    ctx.stroke();
 
-    ctx.font = fontString(diameter * 0.42, fontFamily, '700');
-    ctx.fillStyle = '#1a1400';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.direction = 'ltr';
-    ctx.fillText(String(number), centerX, centerY + diameter * 0.02);
-  }
-
-  // عداد الآيات: حبّة (افتراضي)، دائرة كبيرة، بسيط، شريط سفلي، أو إخفاء
-  function drawAyahCounter(style, ayahNumber, fromAyah, toAyah, fontFamily) {
-    if (style === 'hidden') return;
-
-    const w = canvas.width, h = canvas.height;
-    const label = `الآية ${ayahNumber} / ${toAyah}`;
-
-    if (style === 'circle') {
-      const centerY = h * 0.9;
-      const diameter = w * 0.16;
-      drawGoldCircleNumber(w / 2, centerY, diameter, ayahNumber, fontFamily);
-      const subFontSize = w * 0.028;
-      ctx.font = fontString(subFontSize, fontFamily);
-      ctx.fillStyle = '#c9c9ce';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.direction = 'rtl';
-      ctx.fillText(`من ${toAyah}`, w / 2, centerY + diameter / 2 + subFontSize * 1.3);
-      return;
-    }
-
-    if (style === 'simple') {
-      const fontSize = w * 0.032;
-      ctx.font = fontString(fontSize, fontFamily, '600');
-      ctx.fillStyle = '#f2f2f2';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.direction = 'rtl';
-      ctx.shadowColor = 'rgba(0,0,0,0.6)';
-      ctx.shadowBlur = fontSize * 0.3;
-      ctx.fillText(label, w / 2, h * 0.93);
-      ctx.shadowBlur = 0;
-      return;
-    }
-
-    if (style === 'bottomBar') {
-      const barHeight = h * 0.06;
-      const y = h - barHeight;
-      ctx.fillStyle = 'rgba(15,15,15,0.78)';
-      ctx.fillRect(0, y, w, barHeight);
-      ctx.fillStyle = '#d4af37';
-      ctx.fillRect(0, y, w, barHeight * 0.06);
-
-      const fontSize = barHeight * 0.4;
-      ctx.font = fontString(fontSize, fontFamily, '600');
-      ctx.fillStyle = '#f2f2f2';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.direction = 'rtl';
-      ctx.fillText(label, w / 2, y + barHeight / 2);
-      return;
-    }
-
-    // الافتراضي: حبّة داكنة فيها النص ودائرة ذهبية برقم الآية
-    const centerY = h * 0.92;
-    const fontSize = w * 0.034;
-    ctx.font = fontString(fontSize, fontFamily, '600');
-    const paddingX = fontSize * 1.1;
-    const circleDiameter = fontSize * 2.1;
-    const textWidth = ctx.measureText(label).width;
-    const boxWidth = textWidth + paddingX * 2 + circleDiameter;
-    const boxHeight = circleDiameter + fontSize * 0.5;
-    const x = w / 2 - boxWidth / 2;
-    const y = centerY - boxHeight / 2;
-    const radius = boxHeight / 2;
-
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.arcTo(x + boxWidth, y, x + boxWidth, y + boxHeight, radius);
-    ctx.arcTo(x + boxWidth, y + boxHeight, x, y + boxHeight, radius);
-    ctx.arcTo(x, y + boxHeight, x, y, radius);
-    ctx.arcTo(x, y, x + boxWidth, y, radius);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(15,15,15,0.78)';
-    ctx.fill();
-
-    const circleCenterX = x + boxWidth - circleDiameter / 2 - fontSize * 0.25;
-    const circleCenterY = y + boxHeight / 2;
-    drawGoldCircleNumber(circleCenterX, circleCenterY, circleDiameter, ayahNumber, fontFamily);
-
-    ctx.font = fontString(fontSize, fontFamily, '600');
-    ctx.fillStyle = '#f2f2f2';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.direction = 'rtl';
-    ctx.fillText(label, x + (boxWidth - circleDiameter) / 2 - fontSize * 0.15, y + boxHeight / 2 + fontSize * 0.05);
+    ctx.fillStyle = '#ece7da';
+    ctx.fillText(txt, x + padT + tw / 2, ccy + sc);
+
+    const ccx = x + pw - padC - d / 2;
+    ctx.beginPath();
+    ctx.arc(ccx, ccy, d / 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#f2cd6a';
+    ctx.fill();
+    ctx.font = uiFont(28 * sc, '700');
+    ctx.fillStyle = '#1d1503';
+    ctx.direction = 'ltr';
+    ctx.fillText(String(ayahNumber), ccx, ccy + sc);
   }
 
-  // علامة مائية خفيفة باسم الموقع (SITE_NAME من js/config.js) في زاوية الإطار
-  function drawWatermark(fontFamily) {
-    const w = canvas.width, h = canvas.height;
-    const fontSize = w * 0.022;
-    ctx.font = fontString(fontSize, fontFamily, '600');
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
+  function drawAyahCounterRing(pos, M, ayahNumber, ccy, sc) {
+    const w = canvas.width;
+    const r = 62 * sc;
+    ctx.beginPath();
+    ctx.arc(w / 2, ccy, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(10,10,10,.55)';
+    ctx.fill();
+    ctx.lineWidth = 7 * sc;
+    ctx.strokeStyle = 'rgba(255,255,255,.2)';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(w / 2, ccy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (pos / M));
+    ctx.strokeStyle = '#f2cd6a';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.lineCap = 'butt';
+
+    ctx.font = uiFont(52 * sc, '700');
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.direction = 'ltr';
-    ctx.globalAlpha = 0.5;
-    ctx.fillStyle = '#d4af37';
-    ctx.fillText(SITE_NAME, w * 0.035, h * 0.018);
-    ctx.globalAlpha = 1;
+    ctx.fillText(String(ayahNumber), w / 2, ccy + 3 * sc);
+  }
+
+  function drawAyahCounterSimple(pos, M, ccy, sc) {
+    const w = canvas.width;
+    ctx.font = uiFont(34 * sc, '500');
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.direction = 'ltr';
+    ctx.fillText(`${pos} / ${M}`, w / 2, ccy);
+  }
+
+  function drawAyahCounterBar(timings, t, totalDuration, ccy, sc) {
+    const w = canvas.width;
+    const bw = w * 0.7, bx = (w - bw) / 2, bth = 8 * sc, by = ccy;
+    const frac = totalDuration ? t / totalDuration : 0;
+
+    roundedRectPath(bx, by, bw, bth, bth / 2);
+    ctx.fillStyle = 'rgba(255,255,255,.25)';
+    ctx.fill();
+
+    ctx.save();
+    roundedRectPath(bx, by, bw, bth, bth / 2);
+    ctx.clip();
+    ctx.fillStyle = '#f2cd6a';
+    ctx.fillRect(bx + bw * (1 - frac), by, bw * frac, bth);
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    timings.slice(1).forEach(tm => {
+      ctx.fillRect(bx + bw * (1 - tm.startTime / totalDuration) - sc, by, 2 * sc, bth);
+    });
+    ctx.restore();
+  }
+
+  function drawAyahCounter(style, pos, M, ayahNumber, timings, t, totalDuration, sc) {
+    if (style === 'hidden') return;
+    const ccy = isTall() ? canvas.height * 0.88 : canvas.height - 118 * sc;
+
+    if (style === 'circle') return drawAyahCounterRing(pos, M, ayahNumber, ccy, sc);
+    if (style === 'simple') return drawAyahCounterSimple(pos, M, ccy, sc);
+    if (style === 'bottomBar') return drawAyahCounterBar(timings, t, totalDuration, ccy, sc);
+    return drawAyahCounterPill(pos, M, ayahNumber, ccy, sc); // الافتراضي: حبّة
+  }
+
+  // علامة مائية خفيفة باسم الموقع (SITE_NAME من js/config.js) أسفل وسط الإطار
+  function drawWatermark(sc) {
+    const text = String(SITE_NAME || '').trim();
+    if (!text) return;
+    const w = canvas.width, h = canvas.height;
+    ctx.font = uiFont(24 * sc, '500');
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.direction = 'ltr';
+    ctx.fillText(text, w / 2, h - 40 * sc);
   }
 
   // دالة الرسم الرئيسية: تعتمد فقط على t (بالثواني) والحالة الثابتة المُجهَّزة
   // مسبقًا (frameData)، فتصلح للتشغيل والتقديم والتصدير دون أي فرق في السلوك
   function draw(t, frameData) {
     const {
-      layouts, timings, surahName, reciterName, toAyah,
+      layouts, timings, surahName, reciterName, fromAyah, toAyah,
       fontFamily, showReciterName, counterStyle, background,
     } = frameData;
 
+    const sc = scaleFactor();
     drawBackground(background);
-    drawWatermark(fontFamily);
-    drawHeaderBadges(surahName, reciterName, showReciterName !== false, fontFamily);
+    drawWatermark(sc);
+    drawHeaderBadges(surahName, reciterName, showReciterName !== false, sc);
 
-    const clampedT = Math.max(0, Math.min(t, timings.length ? timings[timings.length - 1].endTime : 0));
-    const currentTiming = timings.find(tm => clampedT >= tm.startTime && clampedT < tm.endTime) ||
-      timings[timings.length - 1];
+    const totalDuration = timings.length ? timings[timings.length - 1].endTime : 0;
+    const clampedT = Math.max(0, Math.min(t, totalDuration));
+    const idx = timings.findIndex(tm => clampedT >= tm.startTime && clampedT < tm.endTime);
+    const currentTiming = timings[idx < 0 ? timings.length - 1 : idx];
 
     if (currentTiming) {
-      drawAyahText(layouts.get(currentTiming.ayahNumber), clampedT, fontFamily);
-      drawAyahCounter(counterStyle || 'pill', currentTiming.ayahNumber, frameData.fromAyah, toAyah, fontFamily);
+      const isLastAyah = currentTiming === timings[timings.length - 1];
+      drawAyahText(layouts.get(currentTiming.ayahNumber), clampedT, fontFamily, isLastAyah, sc);
+
+      const pos = currentTiming.ayahNumber - fromAyah + 1;
+      const M = toAyah - fromAyah + 1;
+      drawAyahCounter(counterStyle || 'pill', pos, M, currentTiming.ayahNumber, timings, clampedT, totalDuration, sc);
     }
   }
 

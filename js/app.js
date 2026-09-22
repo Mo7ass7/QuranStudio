@@ -318,12 +318,19 @@ qualityListEl.addEventListener('click', (e) => {
 // ------- المشغّل -------
 let userSeeking = false;
 
+const ICON_PLAY = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+
+function updatePlayPauseButton(isPlaying) {
+  btnPlayPause.innerHTML = `${isPlaying ? ICON_PAUSE : ICON_PLAY}<span>${isPlaying ? 'إيقاف' : 'تشغيل'}</span>`;
+}
+
 const player = createPlayer({
   onTick: (t, isPlaying) => {
     if (state.frameData) renderer.draw(t, state.frameData);
     if (!userSeeking) seekBarEl.value = String(Math.round((t / (player.duration || 1)) * 1000));
     timeCurrentEl.textContent = formatTime(t);
-    btnPlayPause.textContent = isPlaying ? '⏸' : '▶';
+    updatePlayPauseButton(isPlaying);
   },
 });
 
@@ -385,7 +392,6 @@ btnGenerate.addEventListener('click', async () => {
 
     setStatus('جاري تجهيز الرسم...');
     const fontOption = FONT_OPTIONS.find(f => f.id === state.selectedFontId) || FONT_OPTIONS[0];
-    const aspectOption = ASPECT_RATIOS.find(a => a.id === state.aspectRatio) || ASPECT_RATIOS[0];
     // ننتظر تحميل الخط المختار فعليًا قبل أول رسم لتفادي رسم بخط النظام الافتراضي
     await document.fonts.load(`64px "${fontOption.family}"`);
     await document.fonts.load(`700 64px "${fontOption.family}"`);
@@ -397,7 +403,7 @@ btnGenerate.addEventListener('click', async () => {
     canvas.height = dims.height;
     frameWrapEl.style.aspectRatio = `${dims.width} / ${dims.height}`;
 
-    const layouts = renderer.prepareTimelineLayout(ayahTexts, timings, fontOption.family, aspectOption.textWidthRatio);
+    const layouts = renderer.prepareTimelineLayout(ayahTexts, timings, fontOption.family);
     state.frameData = {
       layouts,
       timings,

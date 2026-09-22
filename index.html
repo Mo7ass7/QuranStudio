@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>QuranStudio</title>
-<link rel="stylesheet" href="fonts/fonts.css?v=6">
-<link rel="stylesheet" href="css/app.css?v=6">
+<link rel="stylesheet" href="fonts/fonts.css?v=7">
+<link rel="stylesheet" href="css/app.css?v=7">
 </head>
 <body>
   <header class="topbar">
@@ -103,21 +103,34 @@
 
     <!-- عناصر المشغّل (خارج الـ Canvas تمامًا) -->
     <div class="player-controls" id="playerControls" hidden>
-      <input type="range" id="seekBar" class="seek-bar" min="0" max="1000" value="0" step="1">
-      <div class="time-row">
-        <span id="timeCurrent">0:00</span>
-        <span id="timeTotal">0:00</span>
-      </div>
-      <div class="transport-row">
-        <button id="btnRestart" class="transport-btn" title="من البداية">⏮</button>
-        <button id="btnBack5" class="transport-btn" title="رجوع 5 ثوانٍ">−5</button>
-        <button id="btnPlayPause" class="transport-btn transport-btn-main" title="تشغيل/إيقاف">▶</button>
-        <button id="btnFwd5" class="transport-btn" title="تقديم 5 ثوانٍ">+5</button>
+      <div class="card">
+        <div class="time-row">
+          <span id="timeCurrent">0:00</span>
+          <span class="dur">المدة: <span id="timeTotal">0:00</span></span>
+        </div>
+        <input type="range" id="seekBar" class="seek-bar" min="0" max="1000" value="0" step="1">
+        <div class="transport-row">
+          <button id="btnBack5" class="transport-btn" title="رجوع 5 ثوانٍ">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg><span>٥ ث</span>
+          </button>
+          <button id="btnPlayPause" class="transport-btn transport-btn-main" title="تشغيل/إيقاف">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg><span>تشغيل</span>
+          </button>
+          <button id="btnFwd5" class="transport-btn" title="تقديم 5 ثوانٍ">
+            <span>٥ ث</span><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+          </button>
+          <button id="btnRestart" class="transport-btn transport-btn-icon" title="من البداية">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 5V2L7 6.5 12 11V8a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- التصدير -->
-    <button id="btnExport" class="btn btn-export" hidden>تحميل / حفظ في المعرض</button>
+    <button id="btnExport" class="btn btn-export" hidden>
+      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z"/></svg>
+      <span>تحميل / حفظ في المعرض</span>
+    </button>
     <div id="exportProgressWrap" class="export-progress-wrap" hidden>
       <div class="export-progress-track"><div id="exportProgressBar" class="export-progress-bar"></div></div>
       <p id="exportStatus" class="status"></p>
@@ -134,15 +147,15 @@
     <p>QuranStudio — المرحلة 3 من 4 · <a href="debug/sources-test.html">صفحة اختبار المصادر</a> · <a href="debug/verify-reciters.html">التحقق من القرّاء</a></p>
   </footer>
 
-  <script src="js/config.js?v=6"></script>
-  <script src="js/reciters.js?v=6"></script>
-  <script src="js/everyayahIndex.js?v=6"></script>
-  <script src="js/quranApi.js?v=6"></script>
-  <script src="js/audioEngine.js?v=6"></script>
-  <script src="js/backgroundManager.js?v=6"></script>
-  <script src="js/renderer.js?v=6"></script>
-  <script src="js/player.js?v=6"></script>
-  <script src="js/export.js?v=6"></script>
-  <script src="js/app.js?v=6"></script>
+  <script src="js/config.js?v=7"></script>
+  <script src="js/reciters.js?v=7"></script>
+  <script src="js/everyayahIndex.js?v=7"></script>
+  <script src="js/quranApi.js?v=7"></script>
+  <script src="js/audioEngine.js?v=7"></script>
+  <script src="js/backgroundManager.js?v=7"></script>
+  <script src="js/renderer.js?v=7"></script>
+  <script src="js/player.js?v=7"></script>
+  <script src="js/export.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>
