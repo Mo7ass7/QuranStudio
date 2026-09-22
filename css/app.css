@@ -598,6 +598,8 @@ button, input, select {
   animation: errorCardIn 0.35s ease;
 }
 
+.error-card[hidden] { display: none; }
+
 .error-icon { flex: none; width: 26px; height: 26px; margin-top: 1px; color: var(--danger); }
 .error-body { min-width: 0; }
 .error-card h2 { margin: 0 0 6px; color: var(--danger); font-size: 1.05rem; font-weight: 800; }
