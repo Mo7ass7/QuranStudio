@@ -4,30 +4,32 @@
    (أميري افتراضيًا) يُستخدم فقط داخل الـ Canvas لنص الآية وشارة السورة. */
 
 :root {
-  --bg: #f5f0e3;
-  --surface: #fffbf1;
-  --surface2: #ece3cd;
-  --text: #2b2517;
-  --muted: #75694f;
-  --gold: #a87a12;
-  --gold-soft: #e9bd4b;
-  --gold-ink: #231a04;
-  --border: #d9cba9;
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --surface2: #f1f3f1;
+  --text: #1a1a1f;
+  --muted: #6b6f76;
+  --gold: #0e6b57;
+  --gold-soft: #12836b;
+  --gold-ink: #ffffff;
+  --border: #e6e7eb;
   --danger: #d1453a;
+  --shadow-card: 0 1px 2px rgba(20,20,20,0.04), 0 16px 32px -20px rgba(20,20,20,0.16);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0c0e13;
-    --surface: #131720;
-    --surface2: #1b202b;
-    --text: #f3edde;
-    --muted: #9b9584;
-    --gold: #e9bd4b;
-    --gold-soft: #f2cd6a;
-    --gold-ink: #1d1503;
-    --border: #272c3a;
+    --bg: #0e1210;
+    --surface: #171b19;
+    --surface2: #202523;
+    --text: #eef2f0;
+    --muted: #8b938e;
+    --gold: #3fd6ad;
+    --gold-soft: #34c9a1;
+    --gold-ink: #052017;
+    --border: #263029;
     --danger: #ff6b6b;
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 16px 32px -20px rgba(0,0,0,0.55);
   }
 }
 
@@ -76,12 +78,135 @@ button, input, select {
 
 .actions-row { display: flex; gap: 10px; }
 
+/* بطاقة المعاينة: إطار الفيديو + شارة النسبة + سطر السورة/القارئ */
+.preview-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  padding: 14px;
+  box-shadow: var(--shadow-card);
+  max-width: 380px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.preview-card-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.preview-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface2);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-byline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.byline-sep { color: var(--border); }
+
+/* شريط الخطوات أعلى الإعدادات */
+.stepper-nav {
+  display: flex;
+  align-items: flex-start;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 2px 2px;
+  cursor: pointer;
+  font-family: inherit;
+  flex: none;
+}
+
+.step-dot {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.step-label {
+  font-size: 0.62rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.step-line {
+  flex: 1;
+  height: 1.5px;
+  background: var(--border);
+  margin: 13px 2px 0;
+  min-width: 8px;
+  transition: background 0.15s ease;
+}
+
+.step-line.done { background: var(--gold-soft); }
+
+.step-item.done .step-dot,
+.step-item.active .step-dot {
+  border-color: var(--gold-soft);
+  background: var(--gold-soft);
+  color: var(--gold-ink);
+}
+
+.step-item.active .step-label,
+.step-item.done .step-label { color: var(--text); font-weight: 700; }
+
+/* شريط تقدّم نطاق الآيات (مرآة بصرية للسبنرز أدناه) */
+.ayah-progress { margin-top: 14px; }
+
+.ayah-progress-track {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--surface2);
+  position: relative;
+  overflow: hidden;
+}
+
+.ayah-progress-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: 0%;
+  background: var(--gold-soft);
+  border-radius: 3px;
+  transition: inset-inline-start 0.15s ease, width 0.15s ease;
+}
+
 /* الإعدادات: قائمة قابلة للطي (أكورديون) */
 .accordion {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 18px;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 
 .acc-item + .acc-item { border-top: 1px solid var(--border); }
@@ -409,7 +534,7 @@ button, input, select {
 /* الأزرار */
 .btn {
   border: none;
-  border-radius: 14px;
+  border-radius: 16px;
   min-height: 44px;
   padding: 0 18px;
   font-size: 0.95rem;
@@ -428,6 +553,7 @@ button, input, select {
   flex: 2;
   background: var(--gold-soft);
   color: var(--gold-ink);
+  box-shadow: 0 12px 24px -12px var(--gold-soft);
 }
 
 .btn-secondary {
@@ -443,6 +569,7 @@ button, input, select {
   background: var(--gold-soft);
   color: var(--gold-ink);
   font-size: 1rem;
+  box-shadow: 0 12px 24px -12px var(--gold-soft);
 }
 
 .btn:disabled { opacity: 0.55; cursor: wait; }
@@ -471,6 +598,7 @@ button, input, select {
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: var(--shadow-card);
 }
 
 .frame-wrap canvas {
@@ -509,6 +637,7 @@ button, input, select {
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 14px;
+  box-shadow: var(--shadow-card);
 }
 
 .seek-bar {

@@ -15,12 +15,22 @@
 
   <main class="wrap">
 
-    <!-- إطار المعاينة: مباشرة تحت العنوان الفرعي -->
-    <div class="frame-wrap" id="frameWrap">
-      <canvas id="previewCanvas" width="1080" height="1920" hidden></canvas>
-      <div class="frame-placeholder" id="framePlaceholder">
-        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 6a2 2 0 0 1 2-2h8l6 6v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm10.5 4.5L11 12l3.5 1.5v-3z"/></svg>
-        <p>اختر السورة والقارئ ثم اضغط «أنشئ المعاينة» أسفل الصفحة لعرضها هنا</p>
+    <!-- بطاقة المعاينة: مباشرة تحت العنوان الفرعي -->
+    <div class="preview-card" id="previewCard">
+      <div class="preview-card-top">
+        <span class="preview-badge" id="previewAspectBadge">9:16</span>
+      </div>
+      <div class="frame-wrap" id="frameWrap">
+        <canvas id="previewCanvas" width="1080" height="1920" hidden></canvas>
+        <div class="frame-placeholder" id="framePlaceholder">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 6a2 2 0 0 1 2-2h8l6 6v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm10.5 4.5L11 12l3.5 1.5v-3z"/></svg>
+          <p>اختر السورة والقارئ ثم اضغط «أنشئ المعاينة» أسفل الصفحة لعرضها هنا</p>
+        </div>
+      </div>
+      <div class="preview-byline">
+        <span id="bylineSurah">—</span>
+        <span class="byline-sep">·</span>
+        <span id="bylineReciter">—</span>
       </div>
     </div>
 
@@ -51,6 +61,19 @@
 
     <p class="hint duration-hint" id="maxDurationHint"></p>
 
+    <!-- شريط الخطوات: مرآة بصرية للأكورديون وتنقّل سريع بين أقسامه -->
+    <nav class="stepper-nav" id="stepperNav" aria-label="خطوات الإعداد">
+      <button type="button" class="step-item" data-step="surah"><span class="step-dot">١</span><span class="step-label">السورة</span></button>
+      <span class="step-line"></span>
+      <button type="button" class="step-item" data-step="reciter"><span class="step-dot">٢</span><span class="step-label">القارئ</span></button>
+      <span class="step-line"></span>
+      <button type="button" class="step-item" data-step="background"><span class="step-dot">٣</span><span class="step-label">الخلفية</span></button>
+      <span class="step-line"></span>
+      <button type="button" class="step-item" data-step="font"><span class="step-dot">٤</span><span class="step-label">الخط</span></button>
+      <span class="step-line"></span>
+      <button type="button" class="step-item" data-step="display"><span class="step-dot">٥</span><span class="step-label">العرض</span></button>
+    </nav>
+
     <!-- الإعدادات: قائمة قابلة للطي (أكورديون) -->
     <div class="accordion" id="settingsAccordion">
 
@@ -59,6 +82,10 @@
         <div class="acc-body">
           <label class="field-label" for="surahSelect">السورة</label>
           <select id="surahSelect" class="select"></select>
+
+          <div class="ayah-progress" id="ayahProgress">
+            <div class="ayah-progress-track"><div class="ayah-progress-fill" id="ayahProgressFill"></div></div>
+          </div>
 
           <div class="ayah-range">
             <div class="ayah-stepper">
