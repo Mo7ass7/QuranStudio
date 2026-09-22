@@ -8,7 +8,6 @@
 // نفسه الذي يستخدم الخط المختار من تبويب "الخط".
 
 var MIN_AYAH_DESIGN_SIZE = 28; // بوحدات التصميم المرجعية (720px)، قبل الضرب بـ sc
-var WORDS_PER_CHUNK = 12;
 
 function createRenderer(canvas) {
   const ctx = canvas.getContext('2d');
@@ -77,10 +76,11 @@ function createRenderer(canvas) {
     return null; // لم يتسع حتى عند الحد الأدنى
   }
 
-  // يجهّز بيانات رسم آية واحدة: نص ثابت يظهر طوال مدة الآية، أو — إن لم يتسع
-  // حتى عند أصغر حجم (سلوك احتياطي محفوظ من مرحلة سابقة، لا وجود له في
-  // النموذج التجريبي لأنه لم يختبر آيات طويلة) — أجزاء (~12 كلمة) تظهر
-  // تباعًا بتوقيت نسبي لعدد الحروف
+  // يجهّز بيانات رسم آية واحدة: إن اتسعت في سطر واحد بحجم مريح تظهر ثابتة
+  // طوال مدة الآية (mode: 'fixed')، وإلا فتُعرض سطرًا سطرًا بخط كبير وواضح
+  // (mode: 'chunks')، كل سطر يظهر لمدة نسبية لعدد حروفه ضمن مدة الآية —
+  // بدل تصغير الخط حتى تتسع الآية كاملة كتلة واحدة (كانت تُقرأ بصعوبة في
+  // الآيات الطويلة)
 
   // المنطقة الآمنة الفعلية لنص الآية: بين أسفل الشارات وأعلى منطقة العداد
   // (نحجز مساحة أكبر عداد ممكن، شكل الحلقة، بصرف النظر عن الشكل المختار
@@ -99,6 +99,23 @@ function createRenderer(canvas) {
     return { center: (top + bottom) / 2, height: Math.max(sc * 40, bottom - top) };
   }
 
+  // يختار أكبر حجم خط "مريح" يجعل ارتفاع السطر الواحد يتسع ضمن المنطقة
+  // الآمنة (بصرف النظر عن عدد الأسطر الكلي بعد اللف، لأننا سنعرض سطرًا
+  // واحدًا في كل لحظة) — بدل تصغيره حتى تتسع الآية كاملة
+  function fitSingleLineFont(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc) {
+    for (let designSize = startDesignSize; designSize >= MIN_AYAH_DESIGN_SIZE; designSize -= 2) {
+      const size = designSize * sc;
+      const lineHeight = size * 1.85;
+      if (lineHeight <= maxHeight) {
+        ctx.font = ayahFont(size, fontFamily);
+        return { fontSize: size, lineHeight, lines: wrapText(text, maxWidth) };
+      }
+    }
+    const size = MIN_AYAH_DESIGN_SIZE * sc;
+    ctx.font = ayahFont(size, fontFamily);
+    return { fontSize: size, lineHeight: size * 1.85, lines: wrapText(text, maxWidth) };
+  }
+
   function prepareAyahLayout(text, timing, fontFamily, sc, tall) {
     const w = canvas.width;
     const maxWidth = w * (tall ? 0.84 : 0.66);
@@ -106,27 +123,20 @@ function createRenderer(canvas) {
     const startDesignSize = tall ? 66 : 84;
 
     const fitted = fitAyahText(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
-    if (fitted) return { mode: 'fixed', ...fitted };
+    if (fitted && fitted.lines.length <= 1) return { mode: 'fixed', ...fitted };
 
-    const words = text.split(/\s+/).filter(Boolean);
-    const chunkTexts = [];
-    for (let i = 0; i < words.length; i += WORDS_PER_CHUNK) {
-      chunkTexts.push(words.slice(i, i + WORDS_PER_CHUNK).join(' '));
-    }
+    const { fontSize, lineHeight, lines } = fitSingleLineFont(text, maxWidth, maxHeight, fontFamily, startDesignSize, sc);
 
     const duration = timing.endTime - timing.startTime;
-    const totalChars = chunkTexts.reduce((sum, c) => sum + c.length, 0) || 1;
+    const totalChars = lines.reduce((sum, l) => sum + l.length, 0) || 1;
     let cursor = timing.startTime;
-    const minSize = MIN_AYAH_DESIGN_SIZE * sc;
-    const chunks = chunkTexts.map((chunkText, idx) => {
-      const share = chunkText.length / totalChars;
-      const chunkDuration = duration * share;
+    const chunks = lines.map((line, idx) => {
+      const share = line.length / totalChars;
+      const isLast = idx === lines.length - 1;
       const startTime = cursor;
-      const endTime = idx === chunkTexts.length - 1 ? timing.endTime : cursor + chunkDuration;
+      const endTime = isLast ? timing.endTime : cursor + duration * share;
       cursor = endTime;
-      const fittedChunk = fitAyahText(chunkText, maxWidth, maxHeight, fontFamily, startDesignSize, sc) ||
-        { fontSize: minSize, lines: wrapText(chunkText, maxWidth), lineHeight: minSize * 1.85 };
-      return { startTime, endTime, ...fittedChunk };
+      return { startTime, endTime, fontSize, lineHeight, lines: [line] };
     });
 
     return { mode: 'chunks', chunks };
