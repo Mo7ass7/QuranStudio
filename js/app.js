@@ -697,6 +697,36 @@ btnReset.addEventListener('click', () => {
   });
 });
 
+// إحصائيات مجمّعة مجهولة الهوية بالكامل — لا IP، لا معرّف جهاز، فقط عدّادات
+// إجمالية على الوسيط (Cloudflare Worker + KV). تُرسَل فقط عند تصدير ناجح
+// فعليًا (بعد اكتمال MediaRecorder ونجاح الحفظ/المشاركة)، ودائمًا صامتة:
+// فشل إرسالها لا يجب أن يظهر للمستخدم أو يوقف أي شيء آخر.
+function logExportStat() {
+  if (!state.selectedSurah) return;
+
+  const backgroundType =
+    state.selectedBackgroundId === 'none' ? 'none' :
+    state.selectedBackgroundId === 'upload' ? 'upload' :
+    (state.backgroundManifest.find((e) => e.id === state.selectedBackgroundId) || {}).type || 'unknown';
+
+  const payload = {
+    reciter: state.selectedReciterId,
+    surahNumber: state.selectedSurah.number,
+    ayahCount: state.toAyah - state.fromAyah + 1,
+    durationSeconds: Math.round(state.totalDuration),
+    aspectRatio: state.aspectRatio,
+    quality: state.quality,
+    hasTranslation: state.showTranslation,
+    backgroundType,
+  };
+
+  fetch(`${PROXY_BASE}/log`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(() => { /* إحصائية اختيارية، لا نزعج المستخدم بفشلها */ });
+}
+
 // ------- التصدير: شريط التقدّم داخل الزر نفسه (لا عنصر منفصل) -------
 let exportRevertTimer = null;
 
@@ -750,6 +780,8 @@ btnExport.addEventListener('click', async () => {
       : result.method === 'cancelled'
         ? 'تم إلغاء المشاركة'
         : 'تم تنزيل الملف بنجاح');
+
+    if (result.method !== 'cancelled') logExportStat();
 
     renderer.draw(player.currentTime(), state.frameData);
     // يعود الزر لحالته الافتراضية بعد لحظة كي يقرأ المستخدم رسالة النجاح

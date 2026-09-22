@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>لوحة إحصائيات QuranStudio</title>
+<link rel="stylesheet" href="../fonts/fonts.css?v=1">
+<link rel="stylesheet" href="../css/app.css?v=1">
+<style>
+  .admin-wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .admin-gate {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 340px;
+    margin: 70px auto 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 18px 0 6px;
+  }
+
+  .section-title { margin: 30px 0 10px; font-size: 1.02rem; font-weight: 800; color: var(--text); }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .data-table th, .data-table td { padding: 9px 8px; text-align: start; border-bottom: 1px solid var(--border); }
+  .data-table th { color: var(--muted); font-weight: 700; font-size: 0.75rem; }
+  .data-table td:nth-child(2) { font-variant-numeric: tabular-nums; text-align: center; }
+
+  .bar-cell { position: relative; min-width: 70px; }
+  .bar-fill { position: absolute; inset-inline-start: 0; top: 2px; bottom: 2px; background: var(--gold-soft); opacity: 0.22; border-radius: 4px; z-index: 0; }
+  .bar-cell span { position: relative; z-index: 1; font-variant-numeric: tabular-nums; }
+
+  .admin-refresh { margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<div class="admin-wrap">
+  <header class="topbar" style="border: none; padding: 0 0 20px; text-align: start;">
+    <h1 style="font-size: 1.3rem; margin: 0;">لوحة إحصائيات QuranStudio</h1>
+    <p class="sub" style="margin: 6px 0 0;">عدّادات مجمّعة فقط — لا بيانات عن أي زائر</p>
+  </header>
+
+  <div class="admin-gate" id="adminGate">
+    <label class="field-label" for="adminPassword">كلمة السر</label>
+    <input type="password" id="adminPassword" class="select" autocomplete="off" inputmode="text">
+    <button type="button" id="btnAdminLogin" class="btn btn-primary" style="width: 100%;">دخول</button>
+    <p class="hint" id="adminError"></p>
+  </div>
+
+  <div id="adminContent" hidden>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotalExports">—</div>
+        <div class="stat-label">إجمالي التصديرات</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statTranslationPct">—</div>
+        <div class="stat-label">نسبة تفعيل الترجمة</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">نسبة العرض</h2>
+    <table class="data-table" id="tableAspects"></table>
+
+    <h2 class="section-title">الجودة</h2>
+    <table class="data-table" id="tableQualities"></table>
+
+    <h2 class="section-title">نوع الخلفية</h2>
+    <table class="data-table" id="tableBackgrounds"></table>
+
+    <h2 class="section-title">القرّاء الأكثر استخدامًا</h2>
+    <table class="data-table" id="tableReciters"></table>
+
+    <h2 class="section-title">السور الأكثر اختيارًا</h2>
+    <table class="data-table" id="tableSurahs"></table>
+
+    <button type="button" id="btnRefresh" class="btn btn-secondary admin-refresh">تحديث البيانات</button>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/reciters.js"></script>
+<script src="../js/quranApi.js"></script>
+<script>
+// لوحة أدمن بسيطة: كلمة سر واحدة تُقارَن على الـ Worker (Authorization
+// header)، ثم عرض العدّادات المجمّعة كما هي. لا جلسة، لا تخزين لكلمة السر
+// (لا localStorage) — إعادة تحميل الصفحة تتطلب إدخالها من جديد عمدًا.
+
+const gateEl = document.getElementById('adminGate');
+const contentEl = document.getElementById('adminContent');
+const passwordEl = document.getElementById('adminPassword');
+const errorEl = document.getElementById('adminError');
+const btnLogin = document.getElementById('btnAdminLogin');
+const btnRefresh = document.getElementById('btnRefresh');
+
+let lastPassword = null;
+
+async function loadStats(password) {
+  errorEl.textContent = '';
+  btnLogin.disabled = true;
+  btnLogin.textContent = 'جارٍ التحقق...';
+  try {
+    const res = await fetch(`${PROXY_BASE}/admin-data`, {
+      headers: { Authorization: password },
+    });
+    if (res.status === 401) {
+      errorEl.textContent = 'كلمة السر غير صحيحة.';
+      return;
+    }
+    if (!res.ok) {
+      errorEl.textContent = `تعذّر جلب البيانات (${res.status}).`;
+      return;
+    }
+    const data = await res.json();
+    lastPassword = password;
+    gateEl.hidden = true;
+    contentEl.hidden = false;
+    await renderStats(data);
+  } catch (err) {
+    errorEl.textContent = 'تعذّر الاتصال بالخادم.';
+  } finally {
+    btnLogin.disabled = false;
+    btnLogin.textContent = 'دخول';
+  }
+}
+
+btnLogin.addEventListener('click', () => {
+  const pw = passwordEl.value.trim();
+  if (!pw) return;
+  loadStats(pw);
+});
+
+passwordEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') btnLogin.click();
+});
+
+btnRefresh.addEventListener('click', () => {
+  if (lastPassword) loadStats(lastPassword);
+});
+
+function renderCountTable(tableEl, entries, labelFor, totalForPct) {
+  const maxCount = entries.reduce((m, e) => Math.max(m, e.count), 0) || 1;
+  const rows = entries.map((e) => {
+    const barPct = Math.round((e.count / maxCount) * 100);
+    const sharePct = totalForPct ? Math.round((e.count / totalForPct) * 100) : barPct;
+    return `<tr>
+      <td>${labelFor(e.key)}</td>
+      <td>${e.count}</td>
+      <td class="bar-cell"><span class="bar-fill" style="width:${barPct}%"></span><span>${sharePct}%</span></td>
+    </tr>`;
+  }).join('');
+
+  tableEl.innerHTML = `
+    <thead><tr><th>الاسم</th><th>العدد</th><th>النسبة</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="3" style="color:var(--muted)">لا بيانات بعد</td></tr>'}</tbody>
+  `;
+}
+
+const BACKGROUND_TYPE_LABELS = {
+  none: 'بدون خلفية',
+  upload: 'مرفوعة من الجهاز',
+  video: 'فيديو جاهز',
+  image: 'صورة جاهزة',
+  unknown: 'غير معروف',
+};
+
+async function renderStats(data) {
+  document.getElementById('statTotalExports').textContent = String(data.totalExports);
+  const translationPct = data.totalExports ? Math.round((data.translationCount / data.totalExports) * 100) : 0;
+  document.getElementById('statTranslationPct').textContent = `${translationPct}%`;
+
+  renderCountTable(document.getElementById('tableAspects'), data.aspects, (k) => k, data.totalExports);
+  renderCountTable(document.getElementById('tableQualities'), data.qualities,
+    (k) => (k === 'normal' ? 'جودة عادية' : 'جودة أقل (720p)'), data.totalExports);
+  renderCountTable(document.getElementById('tableBackgrounds'), data.backgrounds,
+    (k) => BACKGROUND_TYPE_LABELS[k] || k, data.totalExports);
+
+  renderCountTable(document.getElementById('tableReciters'), data.reciters, (id) => {
+    const r = RECITERS.find((x) => x.id === id);
+    return r ? r.name : id;
+  }, data.totalExports);
+
+  document.getElementById('tableSurahs').innerHTML =
+    '<tbody><tr><td style="color:var(--muted)">جارٍ تحميل أسماء السور...</td></tr></tbody>';
+  let surahList = [];
+  try {
+    surahList = await getSurahList();
+  } catch {
+    // نعرض الأرقام فقط إن تعذّر جلب أسماء السور
+  }
+  renderCountTable(document.getElementById('tableSurahs'), data.surahs, (num) => {
+    const s = surahList.find((x) => String(x.number) === num);
+    return s ? `${num}. ${s.name}` : `سورة رقم ${num}`;
+  }, data.totalExports);
+}
+</script>
+
+</body>
+</html>
